@@ -14,6 +14,8 @@
 #include <PubSubClient.h>   // pio lib install 89,  lib details see https://github.com/knolleary/PubSubClient
 #include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550, lib details see https://github.com/mathworks/thingspeak-arduino
+#include <ArduinoJson.h>    // pio lib install 64,  lib details see https://github.com/bblanchon/ArduinoJson
+
 
 // private libraries
 #include <Timer.h>
@@ -43,100 +45,50 @@ MqttClient*           mqttClient = 0;
 
 class TestLedMqttSubscriber : public MqttTopicSubscriber
 {
+private:
+  DbgTrace_Port* m_trPort;
 public:
-  TestLedMqttSubscriber(const char* topic)
-  : MqttTopicSubscriber(topic)
+  TestLedMqttSubscriber()
+  : MqttTopicSubscriber("test/led")
+  , m_trPort(new DbgTrace_Port("mqttled", DbgTrace_Level::debug))
   { }
+
+  ~TestLedMqttSubscriber()
+  {
+    delete m_trPort;
+    m_trPort = 0;
+  }
 
   bool processMessage()
   {
     bool msgHasBeenHandled = false;
     MqttRxMsg* rxMsg = getRxMsg();
-    Serial.print("TestLedMqttSubscriber, ");
-    Serial.print("isMyTopic(): ");
 
     if (isMyTopic())
     {
-      Serial.print("true");
       if (0 != rxMsg)
       {
         // take responsibility
-        Serial.print(", pin state: ");
-        bool pinState = atoi(rxMsg->getRxMsg());
-        Serial.println(pinState);
+        bool pinState = atoi(rxMsg->getRxMsgString());
+        TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
         digitalWrite(BUILTIN_LED, !pinState);  // LED state is inverted on ESP8266
         msgHasBeenHandled = true;
       }
       else
       {
-        Serial.println("ERROR: rxMsg unavailable!");
+        TR_PRINTF(m_trPort, DbgTrace_Level::error, "rxMsg unavailable!");
       }
-    }
-    else
-    {
-      Serial.println("false");
     }
     return msgHasBeenHandled;
   }
 
 private:
   // forbidden default functions
-  TestLedMqttSubscriber();                                              // default constructor
   TestLedMqttSubscriber& operator = (const TestLedMqttSubscriber& src); // assignment operator
   TestLedMqttSubscriber(const TestLedMqttSubscriber& src);              // copy constructor
 };
 
 //-----------------------------------------------------------------------------
-
-class TestDiniMqttSubscriber : public MqttTopicSubscriber
-{
-public:
-  TestDiniMqttSubscriber()
-  : MqttTopicSubscriber("/test/dini")
-  { }
-
-  bool processMessage()
-  {
-    bool msgHasBeenHandled = false;
-    MqttRxMsg* rxMsg = getRxMsg();
-    if (isMyTopic())
-    {
-      if (0 != rxMsg)
-      {
-        // take responsibility
-        Serial.print("TestDiniMqttSubscriber, rxMsg: ");
-        Serial.print("isMyTopic(): ");
-        if (isMyTopic())
-        {
-          Serial.print("true");
-          if (0 != rxMsg)
-          {
-            Serial.print(", rx msg: ");
-            Serial.println(rxMsg->getRxMsg());
-            msgHasBeenHandled = true;
-          }
-          else
-          {
-            Serial.println("ERROR: rxMsg unavailable!");
-          }
-        }
-        else
-        {
-          Serial.println("false");
-        }
-      }
-    }
-    return msgHasBeenHandled;
-  }
-
-private:
-  // forbidden default functions
-  TestDiniMqttSubscriber& operator = (const TestDiniMqttSubscriber& src); // assignment operator
-  TestDiniMqttSubscriber(const TestDiniMqttSubscriber& src);              // copy constructor
-};
-
-//-----------------------------------------------------------------------------
-const byte ledPin = 0; // Pin with LED on Adafruit Huzzah
 
 void setup()
 {
@@ -160,8 +112,9 @@ void setup()
   // MQTT Client
   //-----------------------------------------------------------------------------
   mqttClient = new MqttClient(MQTT_SERVER);
-  mqttClient->subscribe(new TestLedMqttSubscriber("/test/led"));
-  mqttClient->subscribe(new TestDiniMqttSubscriber());
+  mqttClient->subscribe(new TestLedMqttSubscriber());
+  mqttClient->subscribe(new DefaultMqttSubscriber("test/startup/#"));
+  mqttClient->installAutoPublisher(new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), true));
 #endif
 }
 
