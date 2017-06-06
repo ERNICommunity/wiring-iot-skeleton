@@ -33,8 +33,11 @@
 #include <string.h>
 #include <AppDebug.h>
 #include <ProductDebug.h>
+#include <LedTestBlinkPublisher.h>
 
-#define MQTT_SERVER "iot.eclipse.org"
+//#define MQTT_SERVER "iot.eclipse.org"
+#define MQTT_SERVER "test.mosquitto.org"
+//#define MQTT_SERVER "broker.hivemq.com"
 
 SerialCommand*        sCmd = 0;
 
@@ -115,6 +118,7 @@ void setup()
   mqttClient->subscribe(new TestLedMqttSubscriber());
   mqttClient->subscribe(new DefaultMqttSubscriber("test/startup/#"));
   mqttClient->installAutoPublisher(new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), true));
+  new LedTestBlinkPublisher();
 #endif
 }
 
