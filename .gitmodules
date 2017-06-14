@@ -13,6 +13,3 @@
 [submodule "lib/mqtt-client"]
 	path = lib/mqtt-client
 	url = https://github.com/ERNICommunity/mqtt-client.git
-[submodule "lib/timer"]
-	path = lib/timer
-	url = https://github.com/dniklaus/wiring-timer.git
