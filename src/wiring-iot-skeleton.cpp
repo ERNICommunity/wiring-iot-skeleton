@@ -38,10 +38,10 @@
 #define MQTT_SERVER "test.mosquitto.org"
 //#define MQTT_SERVER "broker.hivemq.com"
 
-SerialCommand*        sCmd = 0;
+SerialCommand* sCmd = 0;
 
 #ifdef ESP8266
-WiFiClient*           wifiClient = 0;
+WiFiClient* wifiClient = 0;
 #endif
 
 class TestLedMqttSubscriber : public MqttTopicSubscriber
@@ -112,6 +112,7 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
+  MqttClientController::Instance()->setServer(MQTT_SERVER);
   new TestLedMqttSubscriber();
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
