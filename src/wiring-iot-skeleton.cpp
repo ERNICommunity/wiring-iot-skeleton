@@ -11,14 +11,14 @@
 #include <WiFiClient.h>
 #endif
 // PlatformIO libraries
-#include <PubSubClient.h>   // pio lib install 89,  lib details see https://github.com/knolleary/PubSubClient
-#include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
-#include <ThingSpeak.h>     // pio lib install 550, lib details see https://github.com/mathworks/thingspeak-arduino
-#include <ArduinoJson.h>    // pio lib install 64,  lib details see https://github.com/bblanchon/ArduinoJson
+#include <PubSubClient.h>   // pio lib install 89,   lib details see https://github.com/knolleary/PubSubClient
+#include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
+#include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
+#include <ArduinoJson.h>    // pio lib install 64,   lib details see https://github.com/bblanchon/ArduinoJson
+#include <Timer.h>          // pio lib install 1699, lib details see https://github.com/dniklaus/wiring-timer
 
 
 // private libraries
-#include <Timer.h>
 #include <DbgCliNode.h>
 #include <DbgCliTopic.h>
 #include <DbgTracePort.h>
@@ -26,7 +26,6 @@
 #include <DbgTraceOut.h>
 #include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
-#include <MqttClient.h>
 #include <MqttClientController.h>
 #include <PubSubClientWrapper.h>
 #include <MqttTopic.h>
@@ -43,7 +42,6 @@ SerialCommand*        sCmd = 0;
 
 #ifdef ESP8266
 WiFiClient*           wifiClient = 0;
-MqttClient*           mqttClient = 0;
 #endif
 
 class TestLedMqttSubscriber : public MqttTopicSubscriber
@@ -114,10 +112,9 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  mqttClient = new MqttClient(MQTT_SERVER);
-  mqttClient->subscribe(new TestLedMqttSubscriber());
-  mqttClient->subscribe(new DefaultMqttSubscriber("test/startup/#"));
-  mqttClient->installAutoPublisher(new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), true));
+  new TestLedMqttSubscriber();
+  new DefaultMqttSubscriber("test/startup/#");
+  new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
   new LedTestBlinkPublisher();
 #endif
 }
@@ -128,9 +125,8 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  if (0 != mqttClient)
-  {
-    mqttClient->loop();
-  }
+
+  MqttClientController::Instance()->loop();
+
   yield();                  // process Timers
 }

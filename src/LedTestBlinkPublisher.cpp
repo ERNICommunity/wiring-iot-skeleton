@@ -101,7 +101,7 @@ public:
 };
 
 LedTestBlinkPublisher::LedTestBlinkPublisher()
-: MqttTopic("test/led")
+: MqttTopicPublisher("test/led", "0")
 , m_blinkTimer(new Timer(new BlinkTimerAdapter(this), Timer::IS_RECURRING))
 , m_toggle(false)
 , m_dbgCmdEn(0)

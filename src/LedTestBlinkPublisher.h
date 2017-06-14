@@ -13,7 +13,7 @@
 class Timer;
 class DbgCli_Command;
 
-class LedTestBlinkPublisher: public MqttTopic
+class LedTestBlinkPublisher: public MqttTopicPublisher
 {
 public:
   LedTestBlinkPublisher();

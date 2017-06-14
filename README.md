@@ -32,7 +32,7 @@ This skeleton application demonstrates how to integrate libraries provided by th
 
 The following components are in focus:
 
-* [Timer](https://github.com/dniklaus/arduino-utils-timer)
+* [Timer](https://github.com/dniklaus/wiring-timer)
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
 * [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
@@ -146,12 +146,13 @@ This chapter lists all the libraries used by this project.
 
 ### PlatformIO Libraries
 
-|ID |Name         |URL                                             |Description                                                                         |
-|:--|:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
-|173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
-|550|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
-| 89|PubSubClient |https://github.com/knolleary                    |A client library for MQTT messaging.                                                |
-| 64|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
+|ID |Name         |URL                                             |Description                                                                          |
+|:---|:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
+| 173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
+| 550|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
+|  89|PubSubClient |https://github.com/knolleary                    |A client library for MQTT messaging.                                                |
+|  64|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
+|1699|Timer        |https://github.com/dniklaus/wiring-timer        |Timer based on Arduino millis() funcion, supporting OOP principles and interoperating with Arduino yield() and delay() functionality.| 
 
 
 
@@ -159,7 +160,6 @@ This chapter lists all the libraries used by this project.
 
 |Name       |URL                                             |Description                                                                                                                      |
 |:----------|:-----------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-|Timer      |https://github.com/dniklaus/arduino-utils-timer |Universal recurring or non-recurring Timer                                                                                       |
 |Debug-Cli  |https://github.com/ERNICommunity/debug-cli      |Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure. |
 |Dbg-Trace  |https://github.com/ERNICommunity/dbg-trace      |Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
 |Mqtt-Client|https://github.com/ERNICommunity/mqtt-client    |MQTT Client with pluggable publish and subscribe topic objects                                                                   |
