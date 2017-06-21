@@ -24,8 +24,6 @@ public:
 private:
   Timer* m_blinkTimer;
   bool m_toggle;
-  DbgCli_Command* m_dbgCmdEn;
-  DbgCli_Command* m_dbgCmdDis;
 };
 
 #endif /* SRC_LEDTESTBLINKPUBLISHER_H_ */

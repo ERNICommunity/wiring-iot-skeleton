@@ -104,8 +104,6 @@ LedTestBlinkPublisher::LedTestBlinkPublisher()
 : MqttTopicPublisher("test/led", "0")
 , m_blinkTimer(new Timer(new BlinkTimerAdapter(this), Timer::IS_RECURRING))
 , m_toggle(false)
-, m_dbgCmdEn(0)
-, m_dbgCmdDis(0)
 {
   DbgCli_Topic* ledBlinkPublisherTopic = new DbgCli_Topic(DbgCli_Node::RootNode(), "ledpub", "Led Test Blink Publisherdebug commands");
   new DbgCli_Cmd_LedBlinkPublisherEn(ledBlinkPublisherTopic, this);
