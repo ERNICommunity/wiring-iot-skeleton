@@ -119,7 +119,7 @@ LedTestBlinkPublisher::~LedTestBlinkPublisher()
 void LedTestBlinkPublisher::toggle()
 {
   m_toggle = !m_toggle;
-  MqttClientController::Instance()->publish(getTopicString(), m_toggle ? "1" : "0");
+  publish(m_toggle ? "1" : "0");
 }
 
 Timer* LedTestBlinkPublisher::getTimer()
