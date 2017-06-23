@@ -28,6 +28,7 @@
 #include <DbgTraceLevel.h>
 #include <MqttClientController.h>
 #include <PubSubClientWrapper.h>
+#include <MqttClient.h>
 #include <MqttTopic.h>
 #include <string.h>
 #include <AppDebug.h>
@@ -112,7 +113,7 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  MqttClientController::Instance()->setServer(MQTT_SERVER);
+  MqttClient.begin(MQTT_SERVER);
   new TestLedMqttSubscriber();
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
