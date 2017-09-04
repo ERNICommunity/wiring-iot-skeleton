@@ -1,6 +1,0 @@
-[submodule "lib/debug-cli"]
-	path = lib/debug-cli
-	url = https://github.com/ERNICommunity/debug-cli.git
-
-
-
