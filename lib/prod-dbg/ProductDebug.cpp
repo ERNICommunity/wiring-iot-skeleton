@@ -71,7 +71,7 @@ public:
     if (numSsid == -1)
     {
       Serial.println("Couldn't get a wifi connection");
-      bool bailOut = true;
+      bailOut = true;
     }
 
     if (!bailOut)
