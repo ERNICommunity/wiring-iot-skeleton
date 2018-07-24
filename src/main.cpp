@@ -1,5 +1,5 @@
 /*
- * wiring-iot-skeleton.cpp
+ * main.cpp
  *
  *  Created on: 19.05.2016
  *      Author: niklausd
@@ -10,7 +10,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #endif
+
 // PlatformIO libraries
+#include <MQTT.h>           // pio lib install 617,  lib details see https://github.com/256dpi/arduino-mqtt
 #include <PubSubClient.h>   // pio lib install 89,   lib details see https://github.com/knolleary/PubSubClient
 #include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
@@ -26,17 +28,15 @@
 #include <DbgTraceOut.h>
 #include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
-#include <MqttClientController.h>
-#include <PubSubClientWrapper.h>
-#include <MqttClient.h>
+#include <ECMqttClient.h>
 #include <MqttTopic.h>
 #include <string.h>
 #include <AppDebug.h>
 #include <ProductDebug.h>
 #include <LedTestBlinkPublisher.h>
 
-//#define MQTT_SERVER "iot.eclipse.org"
-#define MQTT_SERVER "test.mosquitto.org"
+#define MQTT_SERVER "iot.eclipse.org"
+//#define MQTT_SERVER "test.mosquitto.org"
 //#define MQTT_SERVER "broker.hivemq.com"
 
 SerialCommand* sCmd = 0;
@@ -73,7 +73,7 @@ public:
         // take responsibility
         bool pinState = atoi(rxMsg->getRxMsgString());
         TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
-        digitalWrite(BUILTIN_LED, !pinState);  // LED state is inverted on ESP8266
+        digitalWrite(LED_BUILTIN, !pinState);  // LED state is inverted on ESP8266
         msgHasBeenHandled = true;
       }
       else
@@ -94,12 +94,14 @@ private:
 
 void setup()
 {
-  pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, 1);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, 1);
 
   setupProdDebugEnv();
 
 #ifdef ESP8266
+  WiFi.mode(WIFI_STA);
+
   //-----------------------------------------------------------------------------
   // ESP8266 WiFi Client
   //-----------------------------------------------------------------------------
@@ -113,7 +115,7 @@ void setup()
   //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  MqttClient.begin(MQTT_SERVER);
+  ECMqttClient.begin(MQTT_SERVER);
   new TestLedMqttSubscriber();
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
@@ -125,8 +127,8 @@ void loop()
 {
   if (0 != sCmd)
   {
-    sCmd->readSerial();     // process serial commands
+    sCmd->readSerial();           // process serial commands
   }
-  MqttClient.loop();        // process MQTT Client
-  yield();                  // process Timers
+  ECMqttClient.loop();            // process MQTT Client
+  scheduleTimers();               // process Timers
 }
