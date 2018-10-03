@@ -23,6 +23,7 @@
 // private libraries
 #include <DbgCliNode.h>
 #include <DbgCliTopic.h>
+#include <DbgCliCommand.h>
 #include <DbgTracePort.h>
 #include <DbgTraceContext.h>
 #include <DbgTraceOut.h>
@@ -33,6 +34,7 @@
 #include <string.h>
 #include <AppDebug.h>
 #include <ProductDebug.h>
+#include <RamUtils.h>
 #include <LedTestBlinkPublisher.h>
 
 #define MQTT_SERVER "iot.eclipse.org"

@@ -69,8 +69,8 @@ Install PlatformIO using the Python Package Manager
   1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
   2. Clone this repository recursively into the folder you created before, `git clone --recursive git@github.com:dniklaus/wiring-iot-skeleton.git`
   3. Open a command shell in the just cloned project folder, i.e in `C:\git\pio-prj\wiring-iot-skeleton`
-  4. Run the command `pio init -b huzzah --ide eclipse`
-  5. Run the command `pio run`
+  4. Run the command `pio init --ide eclipse`, this prepares the project to be edited using Eclipse CDT
+  5. Run the command `pio run`, this starts the project build 
 
 Note: Print a list of all available boards with the command: `pio boards`
 
@@ -78,15 +78,9 @@ Note: Print a list of all available boards with the command: `pio boards`
   1. Open Eclipse CDT, choose the folder you created before as workspace, i.e `C:\git\pio-prj`
   2. Import the project with File->Import->General->Existing Projects into Workspace, choose the `wiring-iot-skeleton` (i.e `C:\git\pio-prj\wiring-iot-skeleton`)
 
-## Connect Terminal
-In order to test and run the CLI commands, a terminal application shall be used. One of the following two applications might give you the best experience:
-
-* [HTerm](http://www.der-hammer.info/terminal/)
-* [CoolTerm](http://freeware.the-meiers.org/)
-
-When using HTerm, load the _hterm-com18.cfg_ file to configure the application properly. Alter the COM18 accordingly to the one that has been selected on your computer.
-
-CoolTerm users can load the _CoolTerm_0.stc_ file and alter the COM8 to the appropriate one.
+## Connect Terminal Emulation
+In order to test and run the CLI commands, a terminal emulation program shall be used. The one giving you the best experience will be the [HTerm](http://www.der-hammer.info/terminal/). 
+Load the _hterm-com7.cfg_ file to configure HTerm properly. Alter the COM7 accordingly to the one that has been selected on your computer.
 
 ## Debug Features
 ### Debug CLI Commands
@@ -142,17 +136,19 @@ CoolTerm users can load the _CoolTerm_0.stc_ file and alter the COM8 to the appr
 |mqttrx    |info         |if set to degug level: show subscribed incoming messages                             |
 
 ## Library Usage
-This chapter lists all the libraries used by this project.
+This chapter lists all the libraries this project is using.
 
 ### PlatformIO Libraries
 
 |ID |Name         |URL                                             |Description                                                                          |
 |:---|:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
 | 173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
+|1699|wiring-timer |https://github.com/dniklaus/wiring-timer|Universal recurring or non-recurring Timer.|
+|1716|debug-cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
+|1717|dbg-trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
 | 550|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
 |  89|PubSubClient |https://github.com/knolleary                    |A client library for MQTT messaging.                                                |
 |  64|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
-|1699|Timer        |https://github.com/dniklaus/wiring-timer        |Timer based on Arduino millis() funcion, supporting OOP principles and interoperating with Arduino yield() and delay() functionality.| 
 
 
 
@@ -160,8 +156,6 @@ This chapter lists all the libraries used by this project.
 
 |Name       |URL                                             |Description                                                                                                                      |
 |:----------|:-----------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-|Debug-Cli  |https://github.com/ERNICommunity/debug-cli      |Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure. |
-|Dbg-Trace  |https://github.com/ERNICommunity/dbg-trace      |Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
 |Mqtt-Client|https://github.com/ERNICommunity/mqtt-client    |MQTT Client with pluggable publish and subscribe topic objects                                                                   |
 |RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities                                                                                                         |
 |App-Debug  |https://github.com/dniklaus/wiring-app-debug.git|Wiring application debug setup component                                                                                         |
