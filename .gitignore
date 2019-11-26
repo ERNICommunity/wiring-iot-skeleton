@@ -33,3 +33,5 @@
 /.pioenvs
 .pioenvs
 .piolibdeps
+/.pio
+/.vscode

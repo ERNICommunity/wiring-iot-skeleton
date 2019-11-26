@@ -12,33 +12,21 @@
 #endif
 
 // PlatformIO libraries
-#include <MQTT.h>           // pio lib install 617,  lib details see https://github.com/256dpi/arduino-mqtt
-#include <PubSubClient.h>   // pio lib install 89,   lib details see https://github.com/knolleary/PubSubClient
 #include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
-#include <ArduinoJson.h>    // pio lib install 64,   lib details see https://github.com/bblanchon/ArduinoJson
 #include <Timer.h>          // pio lib install 1699, lib details see https://github.com/dniklaus/wiring-timer
 
 
 // private libraries
-#include <DbgCliNode.h>
-#include <DbgCliTopic.h>
-#include <DbgCliCommand.h>
 #include <DbgTracePort.h>
-#include <DbgTraceContext.h>
-#include <DbgTraceOut.h>
-#include <DbgPrintConsole.h>
 #include <DbgTraceLevel.h>
-#include <ECMqttClient.h>
+#include <ECMqttClient.h>   // ERNI Community MQTT client wrapper library (depends on MQTT library)
 #include <MqttTopic.h>
-#include <string.h>
-#include <AppDebug.h>
 #include <ProductDebug.h>
-#include <RamUtils.h>
 #include <LedTestBlinkPublisher.h>
 
-#define MQTT_SERVER "iot.eclipse.org"
-//#define MQTT_SERVER "test.mosquitto.org"
+//#define MQTT_SERVER "iot.eclipse.org"
+#define MQTT_SERVER "test.mosquitto.org"
 //#define MQTT_SERVER "broker.hivemq.com"
 
 SerialCommand* sCmd = 0;
