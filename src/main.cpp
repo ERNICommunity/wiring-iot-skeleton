@@ -8,30 +8,33 @@
 #include <Arduino.h>
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
+#elif defined(ESP32)
+#include <WiFi.h>
+// see https://github.com/espressif/arduino-esp32/issues/1960#issuecomment-429546528
 #endif
 
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
 #include <Timer.h>          // pio lib install 1699, lib details see https://github.com/dniklaus/wiring-timer
+#include <DbgTracePort.h>
+#include <DbgTraceLevel.h>
 
 
 // private libraries
-#include <DbgTracePort.h>
-#include <DbgTraceLevel.h>
 #include <ECMqttClient.h>   // ERNI Community MQTT client wrapper library (depends on MQTT library)
 #include <MqttTopic.h>
 #include <ProductDebug.h>
 #include <LedTestBlinkPublisher.h>
 
+//#define MQTT_SERVER "192.168.43.1"
 //#define MQTT_SERVER "iot.eclipse.org"
 #define MQTT_SERVER "test.mosquitto.org"
 //#define MQTT_SERVER "broker.hivemq.com"
 
 SerialCommand* sCmd = 0;
 
-#ifdef ESP8266
+#if defined(ESP8266) || defined(ESP32)
 WiFiClient* wifiClient = 0;
 #endif
 
@@ -63,7 +66,11 @@ public:
         // take responsibility
         bool pinState = atoi(rxMsg->getRxMsgString());
         TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
+#if defined(ESP8266)
         digitalWrite(LED_BUILTIN, !pinState);  // LED state is inverted on ESP8266
+#else
+        digitalWrite(LED_BUILTIN, pinState);
+#endif
         msgHasBeenHandled = true;
       }
       else
@@ -85,15 +92,20 @@ private:
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, 1);
+  // set LED off
+#if defined(ESP8266)
+  digitalWrite(LED_BUILTIN, 1);  // LED state is inverted on ESP8266
+#else
+  digitalWrite(LED_BUILTIN, 0);
+#endif
 
   setupProdDebugEnv();
 
-#ifdef ESP8266
+#if defined(ESP8266) || defined(ESP32)
   WiFi.mode(WIFI_STA);
 
   //-----------------------------------------------------------------------------
-  // ESP8266 WiFi Client
+  // ESP8266 / ESP32 WiFi Client
   //-----------------------------------------------------------------------------
   wifiClient = new WiFiClient();
 

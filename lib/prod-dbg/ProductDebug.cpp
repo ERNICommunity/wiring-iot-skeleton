@@ -5,34 +5,20 @@
  *      Author: nid
  */
 
-#include "ProductDebug.h"
-
 #include <Arduino.h>
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
+#elif defined(ESP32)
+#include <WiFi.h>
 #endif
 #include <ThingSpeak.h>
-#include <Timer.h>
-#include <SerialCommand.h>
 #include <DbgCliNode.h>
 #include <DbgCliTopic.h>
 #include <DbgCliCommand.h>
-#include <DbgTraceContext.h>
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
-#include <DbgPrintConsole.h>
-#include <DbgTraceOut.h>
 #include <AppDebug.h>
-
-
-#ifdef ESP8266
-extern "C"
-{
-  #include "user_interface.h"
-}
-#else
-#include <RamUtils.h>
-#endif
+#include "ProductDebug.h"
 
 //-----------------------------------------------------------------------------
 // WiFi Commands
@@ -86,10 +72,10 @@ public:
         Serial.print(thisNet);
         Serial.print(") ");
         Serial.print(WiFi.SSID(thisNet));
-        Serial.print("\tSignal: ");
+        Serial.print(" - Signal: ");
         Serial.print(WiFi.RSSI(thisNet));
         Serial.print(" dBm");
-        Serial.print("\tEncryption: ");
+        Serial.print(" - Encryption: ");
         printEncryptionType(WiFi.encryptionType(thisNet));
       }
     }
@@ -100,6 +86,8 @@ private:
   {
     // read the encryption type and print out the name:
     switch (thisType) {
+#if ! defined(ESP32)
+// TODO: solve this for ESP32!
       case ENC_TYPE_WEP:
         Serial.println("WEP");
         break;
@@ -115,6 +103,7 @@ private:
       case ENC_TYPE_AUTO:
         Serial.println("Auto");
         break;
+#endif
       default:
         Serial.println("Unknown");
         break;
@@ -193,7 +182,13 @@ public:
     }
     else
     {
-      WiFi.begin(args[idxToFirstArgToHandle], args[idxToFirstArgToHandle+1]);
+      const char* ssid = args[idxToFirstArgToHandle];
+      const char* pass = args[idxToFirstArgToHandle+1];
+      Serial.print("SSID: ");
+      Serial.print(ssid);
+      Serial.print(", pass: ");
+      Serial.println(pass);
+      WiFi.begin(ssid, pass);
       Serial.println("WiFi is connecting now.");
     }
    Serial.println();
@@ -357,7 +352,7 @@ void setupProdDebugEnv()
   //-----------------------------------------------------------------------------
   // WiFi Commands
   //-----------------------------------------------------------------------------
-#ifdef ESP8266
+#if defined(ESP8266) || defined(ESP32)
   DbgCli_Topic* wifiTopic = new DbgCli_Topic(DbgCli_Node::RootNode(), "wifi", "WiFi debug commands");
   new DbgCli_Cmd_WifiMac(wifiTopic);
   new DbgCli_Cmd_WifiNets(wifiTopic);
@@ -369,7 +364,7 @@ void setupProdDebugEnv()
   //-----------------------------------------------------------------------------
   // ThingSpeak Commands
   //-----------------------------------------------------------------------------
-#ifdef ESP8266
+#if defined(ESP8266) || defined(ESP32)
   DbgCli_Topic* thingSpeakTopic = new DbgCli_Topic(DbgCli_Node::RootNode(), "thgspk", "ThingSpeak debug commands");
   new DbgCli_Cmd_ThingSpeakSetField(thingSpeakTopic);
   new DbgCli_Cmd_ThingSpeakChID(thingSpeakTopic);

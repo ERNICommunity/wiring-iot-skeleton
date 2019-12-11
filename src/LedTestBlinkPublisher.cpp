@@ -34,7 +34,7 @@ public:
     {
       if (0 != m_ledBlinkPublisher)
       {
-        m_ledBlinkPublisher->getTimer()->startTimer(1000);
+        m_ledBlinkPublisher->getTimer()->startTimer(2000);
       }
     }
   }
