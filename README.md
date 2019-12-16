@@ -1,12 +1,21 @@
 # wiring-iot-skeleton
-Wiring / Arduino based IoT Skeleton Embedded Application, powered by [PlatformIO](http://platformio.org "Cross-platform build system")
+Arduino Framework based IoT Skeleton Embedded Application, powered by [PlatformIO](http://platformio.org "Cross-platform build system").
 
-The project is built for [Adafruit ESP8266 Huzzah](https://www.adafruit.com/product/2471 "Adafruit HUZZAH ESP8266 Breakout") and can easily be adapted to make it also run on other [ESP8266](https://en.wikipedia.org/wiki/ESP8266) based controllers, such as for [NodeMCU](http://nodemcu.com/index_en.html "NodeMCU Connect Things EASY") for instance.
+With this project you have a good starting point to create your own application that shall be based on the Arduino Framework. 
+
+The project is suitable for the following controller boards:
+
+* Wemos D1 Mini
+* NodeMcu
+* [Adafruit ESP8266 Huzzah](https://www.adafruit.com/product/2471 "Adafruit HUZZAH ESP8266 Breakout")
+* DoIt ESP32 DEVKIT V1
 
 ## Purpose
-This project builds up an Arduino Framework based IoT application skeleton and it comprises of several components helping with debugging and integrating embedded applications on ESP8266 based contoller modules.
+This project builds up an Arduino Framework based IoT application skeleton and it comprises of several components helping with debugging and integrating embedded applications on several different contoller modules.
 
-This project integrates the following **components**:
+This skeleton application can help you to build up your own Arduino Framework based applications while working with [PlatformIO](http://platformio.org "Cross-platform build system").
+
+This project demonstrates how to integrate the following **components**:
 
 * ***Timer***: configurable recurring or non-recurring timer to schedule events without having to use Arduino delay() function; helps to improve your application's architecture by encapsulating the timers into your components and thus make them active
 * ***Ramutils***: helps to determine the free Ram that is currently available
@@ -19,14 +28,16 @@ This project integrates the following **components**:
 
 The **command line interface** provides the following **functionality**:  
 
+* set the trace level of the free heap monitoring printer
 * configure the WiFi access point (SSID & Password) and show the WiFi connection status and the available hotspots around your device
 * [ThingSpeak](http://thingspeak.com) features:
   * setup a  channel to be written to later on (ChID & API Key)
   * set ThingSpeak channel data fields (1..8) and write the data to the channel
 * MQTT features:
-  * connect to / disconnect from a broker (currently using [io.eclipse.org](https://iot.eclipse.org/))
+  * connect to / disconnect from a broker
   * subscribe / unsubscribe to / from MQTT Topics
   * publish to MQTT Topics
+* enable / disable LED Test Blink Publisher
 
 This skeleton application demonstrates how to integrate libraries provided by the PlatformIO ecosystem and also how to use your own libraries and can help you to build up your own Arduino Framework based applications with focus on IoT. 
 
@@ -36,25 +47,24 @@ The following components are in focus:
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
 * [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
+* [MQTT](https://github.com/256dpi/arduino-mqtt)
 * [ThingSpeak](https://github.com/mathworks/thingspeak-particle)
-* [PubSubClient](https://github.com/knolleary)
 
 ## Toolchain
 [PlatformIO](http://platformio.org "Cross-platform build system") is the ideal foundation when developing IoT devices. It supports cross-platform development for many different controller boards widely used in the maker field and also for industrial applications.
 
 ### Installation
-#### Python 2.7
+#### Python 3.7
 
 **Windows**
 
-* download Python 2.7.x from: https://www.python.org/downloads/
-* install for all users
-* select destinationdirectory (keep default): C:\Python27\
-* add python.exe to path
+* download Python 3.7.x or later from: https://www.python.org/downloads/
+* select destination directory: keep default
+* make sure python.exe is added to path
 
 **Linux**
 
-Install Python 2.7 using your package manager.
+Install Python 3.7 or later using your package manager.
 
 #### PlatformIO
 Install PlatformIO using the Python Package Manager
@@ -63,24 +73,53 @@ Install PlatformIO using the Python Package Manager
 * in a cmd shell enter: `pip install -U platformio`
 * upgrade pip, in the cmd shell enter: `python -m pip install --upgrade pip`
 * upgrade PlatformIO, in the cmd shell enter: `pio upgrade`
- 
 
-## How to build for Eclipse CDT
-  1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
-  2. Clone this repository recursively into the folder you created before, `git clone --recursive git@github.com:dniklaus/wiring-iot-skeleton.git`
-  3. Open a command shell in the just cloned project folder, i.e in `C:\git\pio-prj\wiring-iot-skeleton`
-  4. Run the command `pio init --ide eclipse`, this prepares the project to be edited using Eclipse CDT
+### Working with Visual Studio Code
+
+#### How to build for VSCode
+
+  1. Create a directory where your code project shall be cloned into. E.g. `C:\git\pio-prj`
+  2. Clone this repository into the folder you created before: 
+     `git clone git@github.com:ERNICommunity/wiring-iot-skeleton.git` (ssh) or
+     `git clone https://github.com/ERNICommunity/wiring-iot-skeleton.git` (ssl)
+  3. Open a command shell in the just cloned project folder, i.e. in `C:\git\pio-prj\wiring-iot-skeleton`
+  4. Run the command `pio init --ide vscode`. 
+     This prepares the project to be edited using Visual Studio Code.
   5. Run the command `pio run`, this starts the project build 
 
 Note: Print a list of all available boards with the command: `pio boards`
 
-## Open project in Eclipse CDT
-  1. Open Eclipse CDT, choose the folder you created before as workspace, i.e `C:\git\pio-prj`
-  2. Import the project with File->Import->General->Existing Projects into Workspace, choose the `wiring-iot-skeleton` (i.e `C:\git\pio-prj\wiring-iot-skeleton`)
+#### Open project in VSCode
 
-## Connect Terminal Emulation
+  1. Open VSCode
+  2. In menu choose *File > Open Folder...* and choose the folder you cloned the project into before, i.e 
+     `C:\git\pio-prj\wiring-iot-skeleton`
+
+### Working with Eclipse CDT
+
+#### How to build for Eclipse CDT
+
+  1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
+  2. Clone this repository into the folder you created before: 
+     `git clone git@github.com:ERNICommunity/wiring-iot-skeleton.git` (ssh) or
+     `git clone https://github.com/ERNICommunity/wiring-iot-skeleton.git` (ssl)
+  3. Open a command shell in the just cloned project folder, i.e in `C:\git\pio-prj\wiring-iot-skeleton`
+  4. Run the command `pio init --ide eclipse`. 
+     This prepares the project to be edited using Eclipse CDT.
+  5. Run the command `pio run`, this starts the project build 
+
+Note: Print a list of all available boards with the command: `pio boards`
+
+#### Open project in Eclipse CDT
+
+  1. Open Eclipse CDT, choose the folder you created before as workspace, i.e `C:\git\pio-prj`
+  2. Import the project with *File > Import > General > Existing Projects* into Workspace, choose the 
+     `wiring-iot-skeleton` (i.e `C:\git\pio-prj\wiring-iot-skeleton`)
+
+### Connect Terminal Emulation
 In order to test and run the CLI commands, a terminal emulation program shall be used. The one giving you the best experience will be the [HTerm](http://www.der-hammer.info/terminal/). 
-Load the _hterm-com7.cfg_ file to configure HTerm properly. Alter the COM7 accordingly to the one that has been selected on your computer.
+
+Load the _hterm-com10.cfg_ file (to be found in the project root directory) to configure HTerm properly. Alter the *COM10* accordingly to the one that has been selected on your computer.
 
 ## Debug Features
 ### Debug CLI Commands
@@ -91,11 +130,11 @@ Load the _hterm-com7.cfg_ file to configure HTerm properly. Alter the COM7 accor
            out                Trace Output config access for the current trace port
              get              Show the assigned Trace Output
              set <outName>    Set a particular Trace Output name
-             list             Show all available Trace Output names (and the currently selected)
+             list             Show all available Trace Output names (& currently selected)
            lvl                Trace Level config access for the current trace port
              get              Show the current trace level
              set <level>      Set a particular trace level
-             list             Show all available trace levels (and the currenntly selected)
+             list             Show all available trace levels (& currenntly selected)
          conmon               Trace Port: LAN and MQTT connection monitor                
          mqttctrl             Trace Port: MQTT client control
          mqttrx               Trace Port: Received Messages from MQTT subscriptions
@@ -113,6 +152,9 @@ Load the _hterm-com7.cfg_ file to configure HTerm properly. Alter the COM7 accor
          sub <Topic>          Subscribe to MQTT Topic
          unsub <Topic>        Unsubscribe to MQTT Topic
          pub <Topic> <Value>  Publish Value to MQTT Topic
+       ledpub                 LED Test Blink Publisher commands
+         en                   Enable LED Test Blink Publisher
+         dis                  Disable LED Test Blink Publisher
        thgspk                 ThingSpeak debug commands
          chid <channelId>     Set ThingSpeak Channel ID.
          key <APIKey>         Set ThingSpeak API key.
@@ -124,16 +166,20 @@ Load the _hterm-com7.cfg_ file to configure HTerm properly. Alter the COM7 accor
 * `dbg thgspk set 23.6 1`
 * `dbg thgspk set 25.3 2`
 * `dbg thgspk wr`
+* `dbg ledpub en`
 
 
 ### Trace Port
 
 |Trace Port|default level|functionality|
-|----------|-------------|:------------------------------------------------------------------------------------|
-|heap      |info         |if set to debug level: automatically print free heap memory [bytes], every 10 seconds|
-|conmon    |info         |if set to debug level: show WLAN connect / disconnect status updates                 |
-|mqttctrl  |info         |if set to debug: show MQTT Client connection status                                  |
-|mqttrx    |info         |if set to degug level: show subscribed incoming messages                             |
+|-----------|-------------|:-------------------------------------------------------------------------------------|
+|heap       |info         |if set to debug level: automatically print free heap memory [bytes], every 10 seconds |
+|conmon     |info         |if set to debug level: show WLAN connect / disconnect status updates                  |
+|mqttctrl   |info         |if set to debug: show MQTT Client connection status                                   |
+|mqttrx     |info         |if set to degug level: show subscribed incoming messages                              |
+|mqttled    |debug        |show incoming ledpublisher blink messages                                             |
+|mqttdfltsub|debug        |show incoming messages for subscribed topics (subscribed by CLI: dbg mqtt sub <topic>)|
+
 
 ## Library Usage
 This chapter lists all the libraries this project is using.
@@ -160,3 +206,18 @@ This chapter lists all the libraries this project is using.
 |RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities                                                                                                         |
 |App-Debug  |https://github.com/dniklaus/wiring-app-debug.git|Wiring application debug setup component                                                                                         |
 
+
+
+## Create a new project based on this skeleton application
+
+1. On **GitHub:** create new repository, i.e. *my-test*
+2. Within a **Git Bash:**
+
+
+```bash
+  git clone --bare git@github.com:ERNICommunity/wiring-iot-skeleton.git
+  cd ./wiring-iot-skeleton.git
+  git remote rm origin
+  git remote add origin git@github.com:your-name/my-test.git
+  git push --mirror
+```
