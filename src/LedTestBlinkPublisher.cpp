@@ -5,12 +5,11 @@
  *      Author: nid
  */
 
-#include <Arduino.h>
-#include <LedTestBlinkPublisher.h>
-
 #include <Timer.h>
 #include <DbgCliCommand.h>
 #include <DbgCliTopic.h>
+#include <DbgTracePort.h>
+#include <DbgTraceLevel.h>
 #include <MqttClientController.h>
 #include <LedTestBlinkPublisher.h>
 
@@ -41,8 +40,9 @@ public:
 
   void printUsage()
   {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg ledpub en");
+    TR_PRINTF(MqttClientController::Instance()->trPort(), DbgTrace_Level::alert, "%s",  getHelpText());
+    TR_PRINTF(MqttClientController::Instance()->trPort(), DbgTrace_Level::alert, "Usage: %s %s %s", 
+              DbgCli_Node::RootNode()->getNodeName(), this->getParentNode()->getNodeName(), this->getNodeName());
   }
 };
 
@@ -75,8 +75,9 @@ public:
 
   void printUsage()
   {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg ledpub dis");
+    TR_PRINTF(MqttClientController::Instance()->trPort(), DbgTrace_Level::alert, "%s",  getHelpText());
+    TR_PRINTF(MqttClientController::Instance()->trPort(), DbgTrace_Level::alert, "Usage: %s %s %s", 
+              DbgCli_Node::RootNode()->getNodeName(), this->getParentNode()->getNodeName(), this->getNodeName());
   }
 };
 
