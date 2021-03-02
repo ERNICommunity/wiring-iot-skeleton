@@ -16,7 +16,7 @@
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
-#include <Timer.h>          // pio lib install 1699, lib details see https://github.com/dniklaus/wiring-timer
+#include <SpinTimer.h>      // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
 
@@ -127,6 +127,7 @@ void setup()
 
 void loop()
 {
+  // file deepcode ignore CppSameEvalBinaryExpressionfalse: sCmd gets instantiated by setupProdDebugEnv()
   if (0 != sCmd)
   {
     sCmd->readSerial();           // process serial commands

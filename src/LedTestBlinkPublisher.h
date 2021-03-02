@@ -10,7 +10,7 @@
 
 #include <MqttTopic.h>
 
-class Timer;
+class SpinTimer;
 class DbgCli_Command;
 
 class LedTestBlinkPublisher: public MqttTopicPublisher
@@ -19,10 +19,10 @@ public:
   LedTestBlinkPublisher();
   virtual ~LedTestBlinkPublisher();
   void toggle();
-  Timer* getTimer();
+  SpinTimer* getTimer();
 
 private:
-  Timer* m_blinkTimer;
+  SpinTimer* m_blinkTimer;
   bool m_toggle;
 };
 

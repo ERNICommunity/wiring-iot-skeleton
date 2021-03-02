@@ -5,7 +5,7 @@
  *      Author: nid
  */
 
-#include <Timer.h>
+#include <SpinTimer.h>
 #include <DbgCliCommand.h>
 #include <DbgCliTopic.h>
 #include <DbgTracePort.h>
@@ -33,7 +33,7 @@ public:
     {
       if (0 != m_ledBlinkPublisher)
       {
-        m_ledBlinkPublisher->getTimer()->startTimer(2000);
+        m_ledBlinkPublisher->getTimer()->start(2000);
       }
     }
   }
@@ -68,7 +68,7 @@ public:
     {
       if (0 != m_ledBlinkPublisher)
       {
-        m_ledBlinkPublisher->getTimer()->cancelTimer();
+        m_ledBlinkPublisher->getTimer()->cancel();
       }
     }
   }
@@ -83,12 +83,12 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class BlinkTimerAdapter : public TimerAdapter
+class BlinkTimerAction : public SpinTimerAction
 {
 private:
   LedTestBlinkPublisher* m_ledTestBlinkPublisher;
 public:
-  BlinkTimerAdapter(LedTestBlinkPublisher* ledTestBlinkPublisher)
+  BlinkTimerAction(LedTestBlinkPublisher* ledTestBlinkPublisher)
   : m_ledTestBlinkPublisher(ledTestBlinkPublisher)
   { }
 
@@ -103,7 +103,7 @@ public:
 
 LedTestBlinkPublisher::LedTestBlinkPublisher()
 : MqttTopicPublisher("test/led", "0")
-, m_blinkTimer(new Timer(new BlinkTimerAdapter(this), Timer::IS_RECURRING))
+, m_blinkTimer(new SpinTimer(0, new BlinkTimerAction(this), SpinTimer::IS_RECURRING, SpinTimer::IS_NON_AUTOSTART))
 , m_toggle(false)
 {
   DbgCli_Topic* ledBlinkPublisherTopic = new DbgCli_Topic(DbgCli_Node::RootNode(), "ledpub", "Led Test Blink Publisherdebug commands");
@@ -123,7 +123,7 @@ void LedTestBlinkPublisher::toggle()
   publish(m_toggle ? "1" : "0");
 }
 
-Timer* LedTestBlinkPublisher::getTimer()
+SpinTimer* LedTestBlinkPublisher::getTimer()
 {
   return m_blinkTimer;
 }
