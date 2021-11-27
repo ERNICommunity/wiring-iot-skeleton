@@ -54,29 +54,24 @@ public:
     m_trPort = 0;
   }
 
-  bool processMessage()
+  bool processMessage(MqttRxMsg* rxMsg)
   {
     bool msgHasBeenHandled = false;
-    MqttRxMsg* rxMsg = getRxMsg();
 
-    if (isMyTopic())
+    if (0 != rxMsg)
     {
-      if (0 != rxMsg)
-      {
-        // take responsibility
-        bool pinState = atoi(rxMsg->getRxMsgString());
-        TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
+      bool pinState = atoi(rxMsg->getRxMsgString());
+      TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
 #if defined(ESP8266)
-        digitalWrite(LED_BUILTIN, !pinState);  // LED state is inverted on ESP8266
+      digitalWrite(LED_BUILTIN, !pinState);  // LED state is inverted on ESP8266
 #else
-        digitalWrite(LED_BUILTIN, pinState);
+      digitalWrite(LED_BUILTIN, pinState);
 #endif
-        msgHasBeenHandled = true;
-      }
-      else
-      {
-        TR_PRINTF(m_trPort, DbgTrace_Level::error, "rxMsg unavailable!");
-      }
+      msgHasBeenHandled = true;
+    }
+    else
+    {
+      TR_PRINTF(m_trPort, DbgTrace_Level::error, "rxMsg unavailable!");
     }
     return msgHasBeenHandled;
   }
