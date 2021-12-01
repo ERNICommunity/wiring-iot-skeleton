@@ -38,6 +38,28 @@ SerialCommand* sCmd = 0;
 WiFiClient* wifiClient = 0;
 #endif
 
+//-----------------------------------------------------------------------------
+
+void setupBuiltInLed()
+{
+#if defined(ESP8266)
+  digitalWrite(LED_BUILTIN, 1);  // LED state is inverted on ESP8266
+#else
+  digitalWrite(LED_BUILTIN, 0);
+#endif
+}
+ 
+void setBuiltInLed(bool state)
+{
+#if defined(ESP8266)
+  digitalWrite(LED_BUILTIN, !state);  // LED state is inverted on ESP8266
+#else
+  digitalWrite(LED_BUILTIN, state);
+#endif
+ }
+
+//-----------------------------------------------------------------------------
+
 class TestLedMqttSubscriber : public MqttTopicSubscriber
 {
 private:
@@ -60,13 +82,11 @@ public:
 
     if (0 != rxMsg)
     {
-      bool pinState = atoi(rxMsg->getRxMsgString());
-      TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (pinState > 0) ? "on" : "off");
-#if defined(ESP8266)
-      digitalWrite(LED_BUILTIN, !pinState);  // LED state is inverted on ESP8266
-#else
-      digitalWrite(LED_BUILTIN, pinState);
-#endif
+      bool state = atoi(rxMsg->getRxMsgString());
+      TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (state > 0) ? "on" : "off");
+
+      setBuiltInLed(state);
+
       msgHasBeenHandled = true;
     }
     else
@@ -87,12 +107,7 @@ private:
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  // set LED off
-#if defined(ESP8266)
-  digitalWrite(LED_BUILTIN, 1);  // LED state is inverted on ESP8266
-#else
-  digitalWrite(LED_BUILTIN, 0);
-#endif
+  setBuiltInLed(false);
 
   setupProdDebugEnv();
 
