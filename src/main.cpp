@@ -112,6 +112,9 @@ void setup()
   setupProdDebugEnv();
 
 #if defined(ESP8266) || defined(ESP32)
+  
+  enableWiFiAtBootTime();
+  WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
 
   //-----------------------------------------------------------------------------
