@@ -17,7 +17,7 @@ This skeleton application can help you to build up your own Arduino Framework ba
 
 This project demonstrates how to integrate the following **components**:
 
-* ***Timer***: configurable recurring or non-recurring timer to schedule events without having to use Arduino delay() function; helps to improve your application's architecture by encapsulating the timers into your components and thus make them active
+* ***SpinTimer***: Universal timer with 1 millisecond resolution, supporting OOP principles, providing recurring and non-recurring mode; helps to improve your application's architecture by encapsulating the timers into your components and thus make them active
 * ***Ramutils***: helps to determine the free Ram that is currently available
 * ***DbgTrace***: debug trace log environment with configurable log levels
 * ***DbgCLI***: interactive console environment with command tree that can be built up decentralized (from any different location in your application code and within any component)
@@ -43,7 +43,7 @@ This skeleton application demonstrates how to integrate libraries provided by th
 
 The following components are in focus:
 
-* [Timer](https://github.com/dniklaus/wiring-timer)
+* [SpinTimer](https://github.com/dniklaus/spin-timer)
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
 * [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
@@ -186,15 +186,15 @@ This chapter lists all the libraries this project is using.
 
 ### PlatformIO Libraries
 
-|ID |Name         |URL                                             |Description                                                                          |
-|:---|:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
-| 173|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
-|1699|wiring-timer |https://github.com/dniklaus/wiring-timer|Universal recurring or non-recurring Timer.|
-|1716|debug-cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
-|1717|dbg-trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
-| 550|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
-|  89|PubSubClient |https://github.com/knolleary                    |A client library for MQTT messaging.                                                |
-|  64|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
+Name         |URL                                             |Description                                                                          |
+|:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
+|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
+|spin-timer |https://github.com/dniklaus/spin-timer|Universal recurring or non-recurring Timer.|
+|debug-cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
+|dbg-trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
+|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
+|256dpi/MQTT |https://github.com/256dpi/arduino-mqtt                    |MQTT library for Arduino, bundling the [lwmqtt](https://github.com/256dpi/lwmqtt) MQTT 3.1.1 client and adds a thin wrapper to get an Arduino like API.                                                |
+|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
 
 
 
@@ -202,8 +202,8 @@ This chapter lists all the libraries this project is using.
 
 |Name       |URL                                             |Description                                                                                                                      |
 |:----------|:-----------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-|Mqtt-Client|https://github.com/ERNICommunity/mqtt-client    |MQTT Client with pluggable publish and subscribe topic objects                                                                   |
-|RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities                                                                                                         |
+|Mqtt-Client|https://github.com/ERNICommunity/mqtt-client    |ERNI Community MQTT Client with pluggable publish and subscribe topic objects and connection status monitoring                   |
+|RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities, helps to show free heap space                                                                           |
 |App-Debug  |https://github.com/dniklaus/wiring-app-debug.git|Wiring application debug setup component                                                                                         |
 
 
