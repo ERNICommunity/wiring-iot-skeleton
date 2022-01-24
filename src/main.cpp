@@ -51,8 +51,8 @@ void setupBuiltInLed()
  
 void setBuiltInLed(bool state)
 {
-#if defined(ESP8266)
-  digitalWrite(LED_BUILTIN, !state);  // LED state is inverted on ESP8266
+#if defined(ESP8266) || defined(BOARD_LOLIN_D32)
+  digitalWrite(LED_BUILTIN, !state);  // LED state is inverted on ESP8266 & LOLIN D32
 #else
   digitalWrite(LED_BUILTIN, state);
 #endif
@@ -111,9 +111,12 @@ void setup()
 
   setupProdDebugEnv();
 
+#if defined(ESP8266)
+  enableWiFiAtBootTime();
+#endif
+
 #if defined(ESP8266) || defined(ESP32)
   
-  enableWiFiAtBootTime();
   WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
 
