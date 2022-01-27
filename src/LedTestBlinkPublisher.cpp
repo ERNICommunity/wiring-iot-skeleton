@@ -107,7 +107,7 @@ LedTestBlinkPublisher::LedTestBlinkPublisher()
 : MqttTopicPublisher("test/led", "0")
 , m_blinkTimer(new SpinTimer(0, new BlinkTimerAction(this), SpinTimer::IS_RECURRING, SpinTimer::IS_NON_AUTOSTART))
 , m_toggle(false)
-, m_ledBlinkPublisherTopic(new DbgCli_Topic(DbgCli_Node::RootNode(), "ledpub", "Led Test Blink Publisherdebug commands"))
+, m_ledBlinkPublisherTopic(new DbgCli_Topic(DbgCli_Node::RootNode(), "ledpub", "Led Test Blink Publisher debug commands"))
 , m_ledBlinkPublisherEnCmd(new DbgCli_Cmd_LedBlinkPublisherEn(m_ledBlinkPublisherTopic, this))
 , m_ledBlinkPublisherDisCmd(new DbgCli_Cmd_LedBlinkPublisherDis(m_ledBlinkPublisherTopic, this))
 { }
@@ -122,6 +122,9 @@ LedTestBlinkPublisher::~LedTestBlinkPublisher()
 
   delete m_ledBlinkPublisherTopic;
   m_ledBlinkPublisherTopic = 0;
+
+  delete m_blinkTimer->action();
+  m_blinkTimer->attachAction(0);
 
   delete m_blinkTimer;
   m_blinkTimer = 0;
