@@ -14,28 +14,35 @@
 #endif
 
 // PlatformIO libraries
-#include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
-#include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
-#include <SpinTimer.h>      // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
+#include <SerialCommand.h> // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
+#include <ThingSpeak.h>    // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
+#include <SpinTimer.h>     // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
 
+#if defined(ESP8266)
+#include <LittleFS.h>
+#elif defined(ESP32)
+#include <SPIFFS.h>
+#endif
 
 // private libraries
-#include <ECMqttClient.h>   // ERNI Community MQTT client wrapper library (depends on MQTT library)
+#include <ECMqttClient.h> // ERNI Community MQTT client wrapper library (depends on MQTT library)
 #include <MqttTopic.h>
 #include <ProductDebug.h>
 #include <LedTestBlinkPublisher.h>
+#include <ConfigHandler.h>
 
 //#define MQTT_SERVER "192.168.43.1"
 //#define MQTT_SERVER "iot.eclipse.org"
 #define MQTT_SERVER "test.mosquitto.org"
 //#define MQTT_SERVER "broker.hivemq.com"
 
-SerialCommand* sCmd = 0;
+SerialCommand *sCmd = 0;
 
 #if defined(ESP8266) || defined(ESP32)
-WiFiClient* wifiClient = 0;
+WiFiClient *wifiClient = 0;
+ConfigHandler configHandler;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -43,32 +50,51 @@ WiFiClient* wifiClient = 0;
 void setupBuiltInLed()
 {
 #if defined(ESP8266)
-  digitalWrite(LED_BUILTIN, 1);  // LED state is inverted on ESP8266
+  digitalWrite(LED_BUILTIN, 1); // LED state is inverted on ESP8266
 #else
   digitalWrite(LED_BUILTIN, 0);
 #endif
 }
- 
+
 void setBuiltInLed(bool state)
 {
 #if defined(ESP8266) || defined(BOARD_LOLIN_D32)
-  digitalWrite(LED_BUILTIN, !state);  // LED state is inverted on ESP8266 & LOLIN D32
+  digitalWrite(LED_BUILTIN, !state); // LED state is inverted on ESP8266 & LOLIN D32
 #else
   digitalWrite(LED_BUILTIN, state);
 #endif
- }
+}
+
+void initFS()
+{
+  bool isFsInit = false;
+#if defined(ESP8266)
+  isFsInit = !LittleFS.begin();
+#elif defined(ESP32)
+  isFsInit = !SPIFFS.begin();
+#else
+  isFsInit = false;
+  Serial.println("File system for this MC is not yet supported");
+#endif
+  if (isFsInit)
+  {
+    Serial.println("An error has occurred while mounting the file system");
+  }
+  Serial.println("File system mounted successfully");
+}
 
 //-----------------------------------------------------------------------------
 
 class TestLedMqttSubscriber : public MqttTopicSubscriber
 {
 private:
-  DbgTrace_Port* m_trPort;
+  DbgTrace_Port *m_trPort;
+
 public:
   TestLedMqttSubscriber()
-  : MqttTopicSubscriber("test/led")
-  , m_trPort(new DbgTrace_Port("mqttled", DbgTrace_Level::debug))
-  { }
+      : MqttTopicSubscriber("test/led"), m_trPort(new DbgTrace_Port("mqttled", DbgTrace_Level::debug))
+  {
+  }
 
   ~TestLedMqttSubscriber()
   {
@@ -76,7 +102,7 @@ public:
     m_trPort = 0;
   }
 
-  bool processMessage(MqttRxMsg* rxMsg)
+  bool processMessage(MqttRxMsg *rxMsg)
   {
     bool msgHasBeenHandled = false;
 
@@ -98,8 +124,8 @@ public:
 
 private:
   // forbidden default functions
-  TestLedMqttSubscriber& operator = (const TestLedMqttSubscriber& src); // assignment operator
-  TestLedMqttSubscriber(const TestLedMqttSubscriber& src);              // copy constructor
+  TestLedMqttSubscriber &operator=(const TestLedMqttSubscriber &src); // assignment operator
+  TestLedMqttSubscriber(const TestLedMqttSubscriber &src);            // copy constructor
 };
 
 //-----------------------------------------------------------------------------
@@ -116,7 +142,7 @@ void setup()
 #endif
 
 #if defined(ESP8266) || defined(ESP32)
-  
+
   WiFi.persistent(true);
   WiFi.mode(WIFI_STA);
 
@@ -138,6 +164,19 @@ void setup()
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
   new LedTestBlinkPublisher();
+
+  //-----------------------------------------------------------------------------
+  // Little FS file system
+  //-----------------------------------------------------------------------------
+  initFS();
+
+  //-----------------------------------------------------------------------------
+  // Load initial configurations
+  //-----------------------------------------------------------------------------
+  if (configHandler.loadConfigurationFromFile("/config.json"))
+  {
+    Serial.println("ERROR: Loading configurations failed.");
+  }
 #endif
 }
 
@@ -146,8 +185,8 @@ void loop()
   // file deepcode ignore CppSameEvalBinaryExpressionfalse: sCmd gets instantiated by setupProdDebugEnv()
   if (0 != sCmd)
   {
-    sCmd->readSerial();           // process serial commands
+    sCmd->readSerial(); // process serial commands
   }
-  ECMqttClient.loop();            // process MQTT Client
-  scheduleTimers();               // process Timers
+  ECMqttClient.loop(); // process MQTT Client
+  scheduleTimers();    // process Timers
 }
