@@ -6,12 +6,8 @@
  */
 
 #include "ConfigHandler.h"
+#include "FileHandler.h"
 #include <ArduinoJson.h>
-#if defined(ESP8266)
-#include <LittleFS.h>
-#elif defined(ESP32)
-#include <SPIFFS.h>
-#endif
 #include <string>
 
 static std::string assignString(const char *input)
@@ -29,7 +25,7 @@ static std::string assignString(const char *input)
 uint8_t ConfigHandler::loadConfigurationFromFile(const char *path)
 {
     uint8_t outFlag = SUCCESS;
-    File configFile = LittleFS.open(path, "r");
+    File configFile = FsOpen(path, "r");
     StaticJsonDocument<300> doc;
     // Clear configurations
     clearConfigurations();
@@ -85,7 +81,7 @@ uint8_t ConfigHandler::loadConfigurationFromFile(const char *path)
 uint8_t ConfigHandler::saveConfigurationToFile(const char *path)
 {
     uint8_t outFlag = SUCCESS;
-    File configFile = LittleFS.open(path, "w");
+    File configFile = FsOpen(path, "w");
 
     // Check if file exists
     if (!configFile)

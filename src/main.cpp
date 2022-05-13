@@ -20,18 +20,13 @@
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
 
-#if defined(ESP8266)
-#include <LittleFS.h>
-#elif defined(ESP32)
-#include <SPIFFS.h>
-#endif
-
 // private libraries
 #include <ECMqttClient.h> // ERNI Community MQTT client wrapper library (depends on MQTT library)
 #include <MqttTopic.h>
 #include <ProductDebug.h>
 #include <LedTestBlinkPublisher.h>
 #include <ConfigHandler.h>
+#include <FileHandler.h>
 
 //#define MQTT_SERVER "192.168.43.1"
 //#define MQTT_SERVER "iot.eclipse.org"
@@ -63,24 +58,6 @@ void setBuiltInLed(bool state)
 #else
   digitalWrite(LED_BUILTIN, state);
 #endif
-}
-
-void initFS()
-{
-  bool isFsInit = false;
-#if defined(ESP8266)
-  isFsInit = !LittleFS.begin();
-#elif defined(ESP32)
-  isFsInit = !SPIFFS.begin();
-#else
-  isFsInit = false;
-  Serial.println("File system for this MC is not yet supported");
-#endif
-  if (isFsInit)
-  {
-    Serial.println("An error has occurred while mounting the file system");
-  }
-  Serial.println("File system mounted successfully");
 }
 
 //-----------------------------------------------------------------------------
