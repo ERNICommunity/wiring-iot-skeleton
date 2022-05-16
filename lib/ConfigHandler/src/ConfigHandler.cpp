@@ -8,7 +8,6 @@
 #include "ConfigHandler.h"
 #include "FileHandler.h"
 #include <ArduinoJson.h>
-#include <string>
 
 static std::string assignString(const char *input)
 {
@@ -60,8 +59,10 @@ uint8_t ConfigHandler::loadConfigurationFromFile(const char *path)
         // Wifi
         m_sysConfig.wifi.ssid.assign(assignString(doc["wifi"]["ssid"]));
         m_sysConfig.wifi.password.assign(assignString(doc["wifi"]["password"]));
+        m_sysConfig.wifi.accessPointSsid.assign(assignString(doc["wifi"]["accessPointSsid"]));
+        m_sysConfig.wifi.accessPointPassword.assign(assignString(doc["wifi"]["accessPointPassword"]));
+        m_sysConfig.wifi.deviceStaticIp.assign(assignString(doc["wifi"]["deviceStaticIp"]));
         // Landing page
-        m_sysConfig.landingPage.deviceStaticIp.assign(assignString(doc["landingPage"]["deviceStaticIp"]));
         m_sysConfig.landingPage.disableLandingPage = doc["landingPage"]["disableLandingPage"];
         m_sysConfig.landingPage.gpioForLandingPage = doc["landingPage"]["gpioForLandingPage"];
         // Azure config
@@ -99,8 +100,10 @@ uint8_t ConfigHandler::saveConfigurationToFile(const char *path)
         JsonObject wifiConfig = doc.createNestedObject("wifi");
         wifiConfig["ssid"] = m_sysConfig.wifi.ssid;
         wifiConfig["password"] = m_sysConfig.wifi.password;
+        wifiConfig["accessPointSsid"] = m_sysConfig.wifi.accessPointSsid;
+        wifiConfig["accessPointPassword"] = m_sysConfig.wifi.accessPointPassword;
+        wifiConfig["deviceStaticIp"] = m_sysConfig.wifi.deviceStaticIp;
         JsonObject landingPageConfig = doc.createNestedObject("landingPage");
-        landingPageConfig["deviceStaticIp"] = m_sysConfig.landingPage.deviceStaticIp;
         landingPageConfig["disableLandingPage"] = m_sysConfig.landingPage.disableLandingPage;
         landingPageConfig["gpioForLandingPage"] = m_sysConfig.landingPage.gpioForLandingPage;
         JsonObject azureConfig = doc.createNestedObject("azure");
@@ -135,15 +138,20 @@ void ConfigHandler::printConfiguration()
 {
     Serial.println();
     Serial.println("#################### Configurations ####################");
+
     Serial.println("Wifi:");
     Serial.print("\tSSID: ");
     Serial.println(m_sysConfig.wifi.ssid.c_str());
     Serial.print("\tPassword: ");
     Serial.println(m_sysConfig.wifi.password.c_str());
+    Serial.print("\tAccess point SSID: ");
+    Serial.println(m_sysConfig.wifi.accessPointSsid.c_str());
+    Serial.print("\tAccess point Password: ");
+    Serial.println(m_sysConfig.wifi.accessPointPassword.c_str());
+    Serial.print("\tDevice static ip: ");
+    Serial.println(m_sysConfig.wifi.deviceStaticIp.c_str());
 
     Serial.println("Landing page:");
-    Serial.print("\tDevice static ip: ");
-    Serial.println(m_sysConfig.landingPage.deviceStaticIp.c_str());
     Serial.print("\tDisable landing page: ");
     Serial.println(m_sysConfig.landingPage.disableLandingPage);
     Serial.print("\tGPIO for landing page: ");

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "WString.h"
 
 // Error codes
 constexpr uint8_t SUCCESS = 0;
@@ -23,12 +24,14 @@ struct wifiCredentials
 {
     std::string ssid{};
     std::string password{};
+    std::string accessPointSsid{};
+    std::string accessPointPassword{};
+    std::string deviceStaticIp{};
 };
 typedef struct wifiCredentials wifiCredentials;
 
 struct landingPageConfig
 {
-    std::string deviceStaticIp{};
     bool disableLandingPage{};
     uint8_t gpioForLandingPage{};
 };
@@ -42,6 +45,14 @@ struct azureConfig
 };
 typedef struct azureConfig azureConfig;
 
+struct sysConfig
+{
+    wifiCredentials wifi;
+    landingPageConfig landingPage;
+    azureConfig azure;
+};
+typedef struct sysConfig sysConfig;
+
 /**
  * @brief Class handling the board and firmware configuration. Contains configuration for:
  *          - Wifi crendentials
@@ -52,15 +63,11 @@ typedef struct azureConfig azureConfig;
 class ConfigHandler
 {
 private:
-    struct sysConfig
-    {
-        wifiCredentials wifi;
-        landingPageConfig landingPage;
-        azureConfig azure;
-    } m_sysConfig;
-    typedef struct sysConfig sysConfig;
+    sysConfig m_sysConfig;
 
 public:
+    ConfigHandler() : m_sysConfig(){};
+    ConfigHandler(sysConfig sysConfigIn) : m_sysConfig(sysConfigIn){};
     /**
      * @brief   Load configuration into m_config from file
      *
@@ -117,6 +124,12 @@ public:
     const azureConfig *getAzureConfig(void)
     {
         return &m_sysConfig.azure;
+    }
+
+    // TODO, Remove this, shouldn't exist
+    sysConfig *getSysConfig(void)
+    {
+        return &m_sysConfig;
     }
 };
 

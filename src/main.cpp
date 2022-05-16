@@ -6,12 +6,6 @@
  */
 
 #include <Arduino.h>
-#ifdef ESP8266
-#include <ESP8266WiFi.h>
-#elif defined(ESP32)
-#include <WiFi.h>
-// see https://github.com/espressif/arduino-esp32/issues/1960#issuecomment-429546528
-#endif
 
 // PlatformIO libraries
 #include <SerialCommand.h> // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
@@ -27,6 +21,8 @@
 #include <LedTestBlinkPublisher.h>
 #include <ConfigHandler.h>
 #include <FileHandler.h>
+#include <WifiHandler.h>
+#include <LandingPageHandler.h>
 
 //#define MQTT_SERVER "192.168.43.1"
 //#define MQTT_SERVER "iot.eclipse.org"
@@ -114,20 +110,28 @@ void setup()
 
   setupProdDebugEnv();
 
-#if defined(ESP8266)
-  enableWiFiAtBootTime();
-#endif
+  //-----------------------------------------------------------------------------
+  // Little FS file system
+  //-----------------------------------------------------------------------------
+  initFS();
+
+  //-----------------------------------------------------------------------------
+  // Load initial configurations
+  //-----------------------------------------------------------------------------
+  if (configHandler.loadConfigurationFromFile("/config.json"))
+  {
+    Serial.println("ERROR: Loading configurations failed.");
+  }
+
+  //-----------------------------------------------------------------------------
+  // Wifi Configuration
+  //-----------------------------------------------------------------------------
+  if (initWifi(configHandler.getWifiConfig(), &wifiClient))
+  {
+    Serial.println("ERROR: Wifi initialization failed.");
+  }
 
 #if defined(ESP8266) || defined(ESP32)
-
-  WiFi.persistent(true);
-  WiFi.mode(WIFI_STA);
-
-  //-----------------------------------------------------------------------------
-  // ESP8266 / ESP32 WiFi Client
-  //-----------------------------------------------------------------------------
-  wifiClient = new WiFiClient();
-
   //-----------------------------------------------------------------------------
   // ThingSpeak Client
   //-----------------------------------------------------------------------------
@@ -141,20 +145,12 @@ void setup()
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
   new LedTestBlinkPublisher();
-
-  //-----------------------------------------------------------------------------
-  // Little FS file system
-  //-----------------------------------------------------------------------------
-  initFS();
-
-  //-----------------------------------------------------------------------------
-  // Load initial configurations
-  //-----------------------------------------------------------------------------
-  if (configHandler.loadConfigurationFromFile("/config.json"))
-  {
-    Serial.println("ERROR: Loading configurations failed.");
-  }
 #endif
+
+  //-----------------------------------------------------------------------------
+  // Landing page
+  //-----------------------------------------------------------------------------
+  initLandingPage(configHandler.getSysConfig());
 }
 
 void loop()
