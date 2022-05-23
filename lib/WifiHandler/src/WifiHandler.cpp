@@ -7,7 +7,7 @@
 
 #include "WifiHandler.h"
 
-static void enableAccessPoint(const wifiCredentials *wifiCredentials)
+static void enableAccessPoint(const ConfigTypes::wifiCredentials *wifiCredentials)
 {
     WiFi.softAP(wifiCredentials->accessPointSsid.c_str(), wifiCredentials->accessPointPassword.c_str());
 
@@ -15,9 +15,9 @@ static void enableAccessPoint(const wifiCredentials *wifiCredentials)
     Serial.println(WiFi.softAPIP());
 }
 
-static uint8_t enableWifi(const wifiCredentials *wifiCredentials)
+static uint8_t enableWifi(const ConfigTypes::wifiCredentials *wifiCredentials)
 {
-    uint8_t outFlag = WIFI_SUCCESS;
+    uint8_t outFlag = WifiHandler::SUCCESS;
     WiFi.begin(wifiCredentials->ssid.c_str(), wifiCredentials->password.c_str());
 
     Serial.print("Attempting to connect to WiFi");
@@ -29,7 +29,7 @@ static uint8_t enableWifi(const wifiCredentials *wifiCredentials)
     Serial.println();
     if (WiFi.status() != WL_CONNECTED)
     {
-        outFlag = WIFI_FAIL_CONNECTION;
+        outFlag = WifiHandler::FAIL_CONNECTION;
     }
 
     Serial.print("WiFi IP address: ");
@@ -38,18 +38,15 @@ static uint8_t enableWifi(const wifiCredentials *wifiCredentials)
     return outFlag;
 }
 
-uint8_t initWifi(const wifiCredentials *wifiCredentials, WiFiClient **wifiClient)
+uint8_t WifiHandler::initWifi(const ConfigTypes::wifiCredentials *wifiCredentials)
 {
-    uint8_t outFlag = WIFI_SUCCESS;
+    uint8_t outFlag = SUCCESS;
 #if defined(ESP8266)
     enableWiFiAtBootTime();
 #endif
 #if defined(ESP8266) || defined(ESP32)
     WiFi.persistent(true);
     WiFi.mode(WIFI_AP_STA);
-
-    // ESP8266 / ESP32 WiFi Client
-    *wifiClient = new WiFiClient();
 #else
     Serial.println("Wifi for this MC is not yet supported");
     return WIFI_DEVICE_NOT_SUPPORTED;

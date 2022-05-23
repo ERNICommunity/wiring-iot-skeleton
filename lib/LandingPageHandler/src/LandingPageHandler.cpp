@@ -14,47 +14,44 @@
  */
 AsyncWebServer server(80);
 
-sysConfig *m_sysConfig = nullptr;
+const ConfigTypes::sysConfig *m_sysConfig;
 
-void initLandingPage(sysConfig *sysConfig)
+void LandingPageHandler::initLandingPage(LandingPageHandler::saveConfigCallback_t saveConfigCallback,
+                                         LandingPageHandler::getConfigCallback_t getConfigCallback)
 {
-    m_sysConfig = sysConfig;
-
+    m_sysConfig = getConfigCallback();
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(*getFileHandler(), "/index.html", "text/html", false, processor); });
+              { request->send(*FileHandler::getFileHandler(), "/index.html", "text/html", false, processor); });
 
-    server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
+    server.on("/get", HTTP_GET, [&saveConfigCallback](AsyncWebServerRequest *request)
               { if (request->hasParam("reset")) 
                 {
                     ESP.restart();
                 } else{
-                    m_sysConfig->wifi.ssid.assign(request->getParam("ssid")->value().c_str());
-                    m_sysConfig->wifi.password.assign(request->getParam("password")->value().c_str());
+                    ConfigTypes::sysConfig sysConfig{};
+                    sysConfig.wifi.ssid.assign(request->getParam("ssid")->value().c_str());
+                    sysConfig.wifi.password.assign(request->getParam("password")->value().c_str());
 
-                    m_sysConfig->wifi.accessPointSsid.assign(request->getParam("ap_ssid")->value().c_str());
-                    m_sysConfig->wifi.accessPointPassword.assign(request->getParam("ap_password")->value().c_str());
-                    m_sysConfig->wifi.deviceStaticIp.assign(request->getParam("ap_staticIp")->value().c_str());
+                    sysConfig.wifi.accessPointSsid.assign(request->getParam("ap_ssid")->value().c_str());
+                    sysConfig.wifi.accessPointPassword.assign(request->getParam("ap_password")->value().c_str());
+                    sysConfig.wifi.deviceStaticIp.assign(request->getParam("ap_staticIp")->value().c_str());
 
-                    if (request->hasParam("lp_dissable")) 
-                    {
-                        m_sysConfig->landingPage.disableLandingPage = true;
-                    }
-                    m_sysConfig->landingPage.gpioForLandingPage = request->getParam("lp_gpio")->value().toInt();
+                    sysConfig.landingPage.disableLandingPage = request->hasParam("lp_dissable");
+                    sysConfig.landingPage.gpioForLandingPage = request->getParam("lp_gpio")->value().toInt();
                     
-                    m_sysConfig->azure.deviceID.assign(request->getParam("azure_deviceId")->value().c_str());
-                    m_sysConfig->azure.deviceDerivedKey.assign(request->getParam("azure_deviceDerivedKey")->value().c_str());
-                    m_sysConfig->azure.idScope.assign(request->getParam("azure_idScope")->value().c_str());
+                    sysConfig.azure.deviceID.assign(request->getParam("azure_deviceId")->value().c_str());
+                    sysConfig.azure.deviceDerivedKey.assign(request->getParam("azure_deviceDerivedKey")->value().c_str());
+                    sysConfig.azure.idScope.assign(request->getParam("azure_idScope")->value().c_str());
 
-                    //TODO: This code should not be here, need to find a better way.
-                    ConfigHandler tmp(*m_sysConfig);
-                    tmp.saveConfigurationToFile("/config.json");
-                    request->send(*getFileHandler(), "/index.html", "text/html", false, processor);
+                    saveConfigCallback(sysConfig, true);
+
+                    request->send(*FileHandler::getFileHandler(), "/index.html", "text/html", false, processor);
                 } });
-    server.serveStatic("/", *getFileHandler(), "/");
+    server.serveStatic("/", *FileHandler::getFileHandler(), "/");
     server.begin();
 }
 
-const String processor(const String &var)
+const String LandingPageHandler::processor(const String &var)
 {
     if (var == "SSID")
     {

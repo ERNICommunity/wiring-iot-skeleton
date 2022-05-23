@@ -9,6 +9,7 @@
 #define LANDINGPAGEHANDLER_H_
 
 #include "ConfigHandler.h"
+#include "ConfigTypes.h"
 
 #if defined(ESP8266)
 #include <ESPAsyncTCP.h>
@@ -17,19 +18,34 @@
 #endif
 #include <ESPAsyncWebServer.h>
 
-/**
- * @brief Initialize web server for landing page
- *
- * @param sysConfig Configuration to be used
- */
-void initLandingPage(sysConfig *sysConfig);
+namespace LandingPageHandler
+{
+    /**
+     * @brief Callback function for saving system configuration
+     *
+     */
+    typedef uint8_t (*saveConfigCallback_t)(const ConfigTypes::sysConfig &sysConfig, bool makePersisten);
+    /**
+     * @brief Callback function for getting system configuration
+     *
+     */
+    typedef const ConfigTypes::sysConfig *(*getConfigCallback_t)(void);
 
-/**
- * @brief Function to replace placeholders in HTML
- *
- * @param var       String representing the placeholder
- * @return String   Value for placeholder
- */
-const String processor(const String &var);
+    /**
+     * @brief Initialize web server for landing page
+     *
+     * @param saveConfigCallback    Callback to save system configs
+     * @param setConfigCallback     Callback to load system configs
+     */
+    void initLandingPage(saveConfigCallback_t saveConfigCallback, getConfigCallback_t getConfigCallback);
+
+    /**
+     * @brief Function to replace placeholders in HTML
+     *
+     * @param var       String representing the placeholder
+     * @return String   Value for placeholder
+     */
+    const String processor(const String &var);
+}
 
 #endif /* LANDINGPAGEHANDLER_H_ */

@@ -8,129 +8,110 @@
 #ifndef CONFIGHANDLER_H_
 #define CONFIGHANDLER_H_
 
-#include <string>
+#include "ConfigTypes.h"
 #include <stdint.h>
 #include "WString.h"
 
-// Error codes
-constexpr uint8_t SUCCESS = 0;
-constexpr uint8_t FILE_NOT_FOUND = 1;
-constexpr uint8_t JSON_READ_FAILED = 2;
-constexpr uint8_t UNABLE_TO_OPEN_FILE = 3;
-constexpr uint8_t JSON_WRITE_FAILED = 4;
-
-// Configuration sub-structures
-struct wifiCredentials
+namespace ConfigHandler
 {
-    std::string ssid{};
-    std::string password{};
-    std::string accessPointSsid{};
-    std::string accessPointPassword{};
-    std::string deviceStaticIp{};
-};
-typedef struct wifiCredentials wifiCredentials;
+    constexpr char DEFAULT_PATH[] = "/config.json";
 
-struct landingPageConfig
-{
-    bool disableLandingPage{};
-    uint8_t gpioForLandingPage{};
-};
-typedef struct landingPageConfig landingPageConfig;
-
-struct azureConfig
-{
-    std::string deviceID{};
-    std::string deviceDerivedKey{};
-    std::string idScope{};
-};
-typedef struct azureConfig azureConfig;
-
-struct sysConfig
-{
-    wifiCredentials wifi;
-    landingPageConfig landingPage;
-    azureConfig azure;
-};
-typedef struct sysConfig sysConfig;
-
-/**
- * @brief Class handling the board and firmware configuration. Contains configuration for:
- *          - Wifi crendentials
- *          - Landing page for configuration management
- *          - Configuration for Azure IoT Hub enrolment.
- *
- */
-class ConfigHandler
-{
-private:
-    sysConfig m_sysConfig;
-
-public:
-    ConfigHandler() : m_sysConfig(){};
-    ConfigHandler(sysConfig sysConfigIn) : m_sysConfig(sysConfigIn){};
-    /**
-     * @brief   Load configuration into m_config from file
-     *
-     * @param path      Path of the configurations file
-     * @return uint8_t  Error code. 0 if successful
-     */
-    uint8_t loadConfigurationFromFile(const char *path);
+    // Error codes
+    constexpr uint8_t SUCCESS = 0;
+    constexpr uint8_t FILE_NOT_FOUND = 1;
+    constexpr uint8_t JSON_READ_FAILED = 2;
+    constexpr uint8_t UNABLE_TO_OPEN_FILE = 3;
+    constexpr uint8_t JSON_WRITE_FAILED = 4;
 
     /**
-     * @brief   Save configrations into path from m_config
-     *
-     * @param path      Path of the configuration file
-     * @return uint8_t  Error code. 0 if successful
-     */
-    uint8_t saveConfigurationToFile(const char *path);
-
-    /**
-     * @brief Clear m_sysConfig
+     * @brief Class handling the board and firmware configuration. Contains configuration for:
+     *          - Wifi crendentials
+     *          - Landing page for configuration management
+     *          - Configuration for Azure IoT Hub enrolment.
      *
      */
-    void clearConfigurations(void);
-
-    /**
-     * @brief Print data in m_sysConfig
-     *
-     */
-    void printConfiguration(void);
-
-    /**
-     * @brief Get the Wifi Config struct
-     *
-     * @return const wifiCredentials*
-     */
-    const wifiCredentials *getWifiConfig(void)
+    class ConfigHandler
     {
-        return &m_sysConfig.wifi;
-    }
+    private:
+        ConfigTypes::sysConfig m_sysConfig{};
 
-    /**
-     * @brief Get the Landing Page Config struct
-     *
-     * @return const landingPageConfig*
-     */
-    const landingPageConfig *getLandingPageConfig(void)
-    {
-        return &m_sysConfig.landingPage;
-    }
+    public:
+        ConfigHandler() : m_sysConfig(){};
+        ConfigHandler(ConfigTypes::sysConfig sysConfigIn) : m_sysConfig(sysConfigIn){};
+        /**
+         * @brief   Load configuration into m_config from file
+         *
+         * @param path      Path of the configurations file
+         * @return uint8_t  Error code. 0 if successful
+         */
+        uint8_t loadConfigurationFromFile(const char *path);
 
-    /**
-     * @brief Get the Azure Config struct
-     *
-     * @return const azureConfig*
-     */
-    const azureConfig *getAzureConfig(void)
-    {
-        return &m_sysConfig.azure;
-    }
+        /**
+         * @brief   Save configrations into path from m_config
+         *
+         * @param path      Path of the configuration file
+         * @return uint8_t  Error code. 0 if successful
+         */
+        uint8_t saveConfigurationToFile(const char *path) const;
 
-    // TODO, Remove this, shouldn't exist
-    sysConfig *getSysConfig(void)
-    {
-        return &m_sysConfig;
-    }
-};
+        /**
+         * @brief Clear m_sysConfig
+         *
+         */
+        void clearConfigurations(void);
+
+        /**
+         * @brief Print data in m_sysConfig
+         *
+         */
+        void printConfiguration(void) const;
+
+        /**
+         * @brief Get the Wifi Config struct
+         *
+         * @return const wifiCredentials*
+         */
+        const ConfigTypes::wifiCredentials *getWifiConfig(void) const
+        {
+            return &m_sysConfig.wifi;
+        }
+
+        /**
+         * @brief Get the Landing Page Config struct
+         *
+         * @return const landingPageConfig*
+         */
+        const ConfigTypes::landingPageConfig *getLandingPageConfig(void) const
+        {
+            return &m_sysConfig.landingPage;
+        }
+
+        /**
+         * @brief Get the Azure Config struct
+         *
+         * @return const azureConfig*
+         */
+        const ConfigTypes::azureConfig *getAzureConfig(void) const
+        {
+            return &m_sysConfig.azure;
+        }
+
+        /**
+         * @brief Set the Sys Config object and save to file if required
+         *
+         * @param sysConfig         Configuration to be set
+         * @param makePersisten     If true, configuration will be saved to file
+         * @return uint8_t          Error code, 0 if successful
+         */
+        uint8_t setSysConfig(const ConfigTypes::sysConfig &sysConfig, bool makePersisten);
+
+        /**
+         * @brief Get the Sys Config object
+         *
+         * @return const ConfigTypes::sysConfig*
+         */
+        const ConfigTypes::sysConfig *getSysConfig(void) const;
+    };
+} // namespace ConfigHandler
 
 #endif /* CONFIGHANDLER_H_ */

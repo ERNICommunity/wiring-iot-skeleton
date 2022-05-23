@@ -21,10 +21,10 @@ static std::string assignString(const char *input)
     return tmp;
 }
 
-uint8_t ConfigHandler::loadConfigurationFromFile(const char *path)
+uint8_t ConfigHandler::ConfigHandler::loadConfigurationFromFile(const char *path)
 {
     uint8_t outFlag = SUCCESS;
-    File configFile = FsOpen(path, "r");
+    File configFile = FileHandler::FsOpen(path, "r");
     StaticJsonDocument<300> doc;
     // Clear configurations
     clearConfigurations();
@@ -79,10 +79,10 @@ uint8_t ConfigHandler::loadConfigurationFromFile(const char *path)
     return outFlag;
 }
 
-uint8_t ConfigHandler::saveConfigurationToFile(const char *path)
+uint8_t ConfigHandler::ConfigHandler::saveConfigurationToFile(const char *path) const
 {
     uint8_t outFlag = SUCCESS;
-    File configFile = FsOpen(path, "w");
+    File configFile = FileHandler::FsOpen(path, "w");
 
     // Check if file exists
     if (!configFile)
@@ -128,13 +128,13 @@ uint8_t ConfigHandler::saveConfigurationToFile(const char *path)
     return outFlag;
 }
 
-void ConfigHandler::clearConfigurations(void)
+void ConfigHandler::ConfigHandler::clearConfigurations(void)
 {
-    sysConfig temp{};
+    ConfigTypes::sysConfig temp{};
     m_sysConfig = temp;
 }
 
-void ConfigHandler::printConfiguration()
+void ConfigHandler::ConfigHandler::printConfiguration() const
 {
     Serial.println();
     Serial.println("#################### Configurations ####################");
@@ -165,4 +165,22 @@ void ConfigHandler::printConfiguration()
     Serial.print("\tId scope: ");
     Serial.println(m_sysConfig.azure.idScope.c_str());
     Serial.println("########################################################");
+}
+
+uint8_t ConfigHandler::ConfigHandler::setSysConfig(const ConfigTypes::sysConfig &sysConfig, bool makePersisten)
+{
+    uint8_t outFlag;
+    m_sysConfig = sysConfig;
+
+    if (makePersisten)
+    {
+        outFlag = saveConfigurationToFile(DEFAULT_PATH);
+    }
+
+    return outFlag;
+}
+
+const ConfigTypes::sysConfig *ConfigHandler::ConfigHandler::getSysConfig() const
+{
+    return &m_sysConfig;
 }

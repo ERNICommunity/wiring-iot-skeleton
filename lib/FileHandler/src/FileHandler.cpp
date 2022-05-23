@@ -7,7 +7,7 @@
 
 #include "FileHandler.h"
 
-void initFS()
+void FileHandler::initFS()
 {
     bool isFsInit = false;
 #if defined(ESP8266)
@@ -25,7 +25,7 @@ void initFS()
     Serial.println("File system mounted successfully");
 }
 
-File FsOpen(const char *path, const char *mode)
+File FileHandler::FsOpen(const char *path, const char *mode)
 {
 #if defined(ESP8266)
     return LittleFS.open(path, mode);
@@ -37,7 +37,7 @@ File FsOpen(const char *path, const char *mode)
 #endif
 }
 
-fs::FS *getFileHandler(void)
+fs::FS *FileHandler::getFileHandler(void)
 {
 #if defined(ESP8266)
     return &LittleFS;
