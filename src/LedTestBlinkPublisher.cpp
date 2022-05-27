@@ -110,10 +110,14 @@ LedTestBlinkPublisher::LedTestBlinkPublisher()
 , m_ledBlinkPublisherTopic(new DbgCli_Topic(DbgCli_Node::RootNode(), "ledpub", "Led Test Blink Publisher debug commands"))
 , m_ledBlinkPublisherEnCmd(new DbgCli_Cmd_LedBlinkPublisherEn(m_ledBlinkPublisherTopic, this))
 , m_ledBlinkPublisherDisCmd(new DbgCli_Cmd_LedBlinkPublisherDis(m_ledBlinkPublisherTopic, this))
+, m_trPort(new DbgTrace_Port("blinkpub", DbgTrace_Level::info))
 { }
 
 LedTestBlinkPublisher::~LedTestBlinkPublisher()
 {
+  delete m_trPort;
+  m_trPort = 0;
+  
   delete m_ledBlinkPublisherDisCmd;
   m_ledBlinkPublisherDisCmd = 0;
 
@@ -133,6 +137,7 @@ LedTestBlinkPublisher::~LedTestBlinkPublisher()
 void LedTestBlinkPublisher::toggle()
 {
   m_toggle = !m_toggle;
+  TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LedTestBlinkPublisher::toggle(): %u", m_toggle);
   publish(m_toggle ? "1" : "0");
 }
 

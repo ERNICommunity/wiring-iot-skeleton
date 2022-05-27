@@ -13,6 +13,7 @@
 class SpinTimer;
 class DbgCli_Topic;
 class DbgCli_Command;
+class DbgTrace_Port;
 
 class LedTestBlinkPublisher: public MqttTopicPublisher
 {
@@ -28,6 +29,7 @@ private:
   DbgCli_Topic*   m_ledBlinkPublisherTopic;
   DbgCli_Command* m_ledBlinkPublisherEnCmd;
   DbgCli_Command* m_ledBlinkPublisherDisCmd;
+  DbgTrace_Port*  m_trPort;
 };
 
 #endif /* SRC_LEDTESTBLINKPUBLISHER_H_ */
