@@ -8,7 +8,7 @@
 #ifndef CONFIGTYPES_H_
 #define CONFIGTYPES_H_
 
-#include <string>
+#include <WString.h>
 #include <stdint.h>
 
 namespace ConfigTypes
@@ -16,11 +16,11 @@ namespace ConfigTypes
     // Configuration sub-structures
     struct wifiCredentials
     {
-        std::string ssid{};
-        std::string password{};
-        std::string accessPointSsid{};
-        std::string accessPointPassword{};
-        std::string deviceStaticIp{};
+        String ssid{};
+        String password{};
+        String accessPointSsid{};
+        String accessPointPassword{};
+        String deviceStaticIp{};
     };
     typedef struct wifiCredentials wifiCredentials;
 
@@ -33,9 +33,9 @@ namespace ConfigTypes
 
     struct azureConfig
     {
-        std::string deviceID{};
-        std::string deviceDerivedKey{};
-        std::string idScope{};
+        String deviceID{};
+        String deviceDerivedKey{};
+        String idScope{};
     };
     typedef struct azureConfig azureConfig;
 

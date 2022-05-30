@@ -12,43 +12,44 @@
  * @brief Create AsyncWebServer object on port 80
  *
  */
-AsyncWebServer server(80);
+AsyncWebServer *server;
 
 const ConfigTypes::sysConfig *m_sysConfig;
 
 void LandingPageHandler::initLandingPage(LandingPageHandler::saveConfigCallback_t saveConfigCallback,
                                          LandingPageHandler::getConfigCallback_t getConfigCallback)
 {
+    server = new AsyncWebServer(80);
     m_sysConfig = getConfigCallback();
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(*FileHandler::getFileHandler(), "/index.html", "text/html", false, processor); });
+    server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+               { request->send(*FileHandler::getFileHandler(), "/index.html", "text/html", false, processor); });
 
-    server.on("/get", HTTP_GET, [&saveConfigCallback](AsyncWebServerRequest *request)
-              { if (request->hasParam("reset")) 
+    server->on("/get", HTTP_GET, [saveConfigCallback](AsyncWebServerRequest *request)
+               { if (request->hasParam("reset")) 
                 {
                     ESP.restart();
                 } else{
                     ConfigTypes::sysConfig sysConfig{};
-                    sysConfig.wifi.ssid.assign(request->getParam("ssid")->value().c_str());
-                    sysConfig.wifi.password.assign(request->getParam("password")->value().c_str());
+                    sysConfig.wifi.ssid = request->getParam("ssid")->value();
+                    sysConfig.wifi.password = request->getParam("password")->value();
 
-                    sysConfig.wifi.accessPointSsid.assign(request->getParam("ap_ssid")->value().c_str());
-                    sysConfig.wifi.accessPointPassword.assign(request->getParam("ap_password")->value().c_str());
-                    sysConfig.wifi.deviceStaticIp.assign(request->getParam("ap_staticIp")->value().c_str());
+                    sysConfig.wifi.accessPointSsid = request->getParam("ap_ssid")->value();
+                    sysConfig.wifi.accessPointPassword = request->getParam("ap_password")->value();
+                    sysConfig.wifi.deviceStaticIp = request->getParam("ap_staticIp")->value();
 
                     sysConfig.landingPage.disableLandingPage = request->hasParam("lp_dissable");
                     sysConfig.landingPage.gpioForLandingPage = request->getParam("lp_gpio")->value().toInt();
                     
-                    sysConfig.azure.deviceID.assign(request->getParam("azure_deviceId")->value().c_str());
-                    sysConfig.azure.deviceDerivedKey.assign(request->getParam("azure_deviceDerivedKey")->value().c_str());
-                    sysConfig.azure.idScope.assign(request->getParam("azure_idScope")->value().c_str());
+                    sysConfig.azure.idScope = request->getParam("azure_idScope")->value();
+                    sysConfig.azure.deviceID = request->getParam("azure_deviceId")->value();
+                    sysConfig.azure.deviceDerivedKey = request->getParam("azure_deviceDerivedKey")->value();
 
                     saveConfigCallback(sysConfig, true);
 
                     request->send(*FileHandler::getFileHandler(), "/index.html", "text/html", false, processor);
                 } });
-    server.serveStatic("/", *FileHandler::getFileHandler(), "/");
-    server.begin();
+    server->serveStatic("/", *FileHandler::getFileHandler(), "/");
+    server->begin();
 }
 
 const String LandingPageHandler::processor(const String &var)
