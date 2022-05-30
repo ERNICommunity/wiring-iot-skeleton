@@ -76,12 +76,7 @@ const String LandingPageHandler::processor(const String &var)
     }
     if (var == "LP_DISSABLE")
     {
-        String tmp{};
-        if (m_sysConfig->landingPage.disableLandingPage)
-        {
-            tmp = "checked";
-        }
-        return tmp;
+        return m_sysConfig->landingPage.disableLandingPage ? "checked" : "";
     }
     if (var == "LP_GPIO")
     {
