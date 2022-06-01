@@ -14,6 +14,7 @@
 #if defined(ESP8266)
 #include <ESPAsyncTCP.h>
 #elif defined(ESP32)
+#include "freertos/FreeRTOS.h"
 #include <AsyncTCP.h>
 #endif
 #include <ESPAsyncWebServer.h>

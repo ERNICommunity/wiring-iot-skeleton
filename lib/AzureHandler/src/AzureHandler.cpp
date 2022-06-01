@@ -13,14 +13,43 @@
 #include <PubSubClient.h>
 #include <base64.hpp>
 #include <WiFiClientSecure.h>
-#include <ESP8266HTTPClient.h>
 #include <WiFiUdp.h>
+#if defined(ESP8266)
+#include <ESP8266HTTPClient.h>
+#elif defined(ESP32)
+#include <HTTPClient.h>
+#include <mbedtls/md.h>
+
+const char cert[] PROGMEM = R"EOF(
+-----BEGIN CERTIFICATE-----
+MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ
+RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD
+VQQDExlCYWx0aW1vcmUgQ3liZXJUcnVzdCBSb290MB4XDTAwMDUxMjE4NDYwMFoX
+DTI1MDUxMjIzNTkwMFowWjELMAkGA1UEBhMCSUUxEjAQBgNVBAoTCUJhbHRpbW9y
+ZTETMBEGA1UECxMKQ3liZXJUcnVzdDEiMCAGA1UEAxMZQmFsdGltb3JlIEN5YmVy
+VHJ1c3QgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKMEuyKr
+mD1X6CZymrV51Cni4eiVgLGw41uOKymaZN+hXe2wCQVt2yguzmKiYv60iNoS6zjr
+IZ3AQSsBUnuId9Mcj8e6uYi1agnnc+gRQKfRzMpijS3ljwumUNKoUMMo6vWrJYeK
+mpYcqWe4PwzV9/lSEy/CG9VwcPCPwBLKBsua4dnKM3p31vjsufFoREJIE9LAwqSu
+XmD+tqYF/LTdB1kC1FkYmGP1pWPgkAx9XbIGevOF6uvUA65ehD5f/xXtabz5OTZy
+dc93Uk3zyZAsuT3lySNTPx8kmCFcB5kpvcY67Oduhjprl3RjM71oGDHweI12v/ye
+jl0qhqdNkNwnGjkCAwEAAaNFMEMwHQYDVR0OBBYEFOWdWTCCR1jMrPoIVDaGezq1
+BE3wMBIGA1UdEwEB/wQIMAYBAf8CAQMwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3
+DQEBBQUAA4IBAQCFDF2O5G9RaEIFoN27TyclhAO992T9Ldcw46QQF+vaKSm2eT92
+9hkTI7gQCvlYpNRhcL0EYWoSihfVCr3FvDB81ukMJY2GQE/szKN+OMY3EU/t3Wgx
+jkzSswF07r51XgdIGn9w/xZchMB5hbgF/X++ZRGjD8ACtPhSNzkE1akxehi/oCr0
+Epn3o0WC4zxe9Z2etciefC7IpJ5OCBRLbf1wbWsaY71k5h+3zvDyny67G7fyUIhz
+ksLi4xaNmjICq44Y3ekQEe5+NauQrz4wlHrQMz2nZQ/1/I6eYs9HRCwBXbsdtTLS
+R9I4LtD+gdwyah617jzV/OeBHRnDJELqYzmp
+-----END CERTIFICATE-----
+)EOF";
+#endif
 
 String mqttHostName; // this will be the Azure IoT Hub Full Name
 String mqttUserId;   // this will be the Azure IoT Hub DeviceId
 String mqttPassword; // this will be the Preshared Key
 
-BearSSL::WiFiClientSecure espClient;
+WiFiClientSecure espClient;
 
 HTTPClient httpsClient;
 
@@ -31,28 +60,42 @@ NTPClient timeClient(ntpUDP);
 
 static String Sha256Sign(String dataToSign, String preSharedKey)
 {
-    char dataToSignChar[dataToSign.length() + 1];
-    dataToSign.toCharArray(dataToSignChar, dataToSign.length() + 1);
-
     unsigned char decodedPSK[32];
     unsigned char encryptedSignature[100];
     unsigned char encodedSignature[100];
-    br_sha256_context sha256_context;
-    br_hmac_key_context hmac_key_context;
-    br_hmac_context hmac_context;
+    unsigned int contextSize;
 
     // need to base64 decode the Preshared key and the length
     int base64_decoded_device_length = decode_base64((unsigned char *)preSharedKey.c_str(), decodedPSK);
+
+#if defined(ESP8266)
+    br_sha256_context sha256_context;
+    br_hmac_key_context hmac_key_context;
+    br_hmac_context hmac_context;
 
     // create the sha256 hmac and hash the data
     br_sha256_init(&sha256_context);
     br_hmac_key_init(&hmac_key_context, sha256_context.vtable, decodedPSK, base64_decoded_device_length);
     br_hmac_init(&hmac_context, &hmac_key_context, 32);
-    br_hmac_update(&hmac_context, dataToSignChar, sizeof(dataToSignChar) - 1);
+    br_hmac_update(&hmac_context, dataToSign.c_str(), strlen(dataToSign.c_str()));
     br_hmac_out(&hmac_context, encryptedSignature);
 
+    contextSize = br_hmac_size(&hmac_context);
+#elif defined(ESP32)
+    mbedtls_md_context_t ctx;
+
+    mbedtls_md_init(&ctx);
+    mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), 1);
+    mbedtls_md_hmac_starts(&ctx, decodedPSK, base64_decoded_device_length);
+    mbedtls_md_hmac_update(&ctx, (const unsigned char *)dataToSign.c_str(), strlen(dataToSign.c_str()));
+    mbedtls_md_hmac_finish(&ctx, encryptedSignature);
+    mbedtls_md_free(&ctx);
+
+    contextSize = mbedtls_md_get_size(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256));
+#endif
+
     // base64 decode the HMAC to a char
-    encode_base64(encryptedSignature, br_hmac_size(&hmac_context), encodedSignature);
+    encode_base64(encryptedSignature, contextSize, encodedSignature);
 
     // creating the real SAS Token
     return String((char *)encodedSignature);
@@ -90,7 +133,7 @@ static String AzureDpsPskToToken(const String scopeId, const String deviceId, co
     return realSASToken;
 }
 
-static int HttpsRequest(const String &url, const String &sasToken, AzureHandler::HttpsActions operation, const String &body = String())
+static std::tuple<uint8_t, String> HttpsRequest(const String &url, const String &sasToken, AzureHandler::HttpsActions operation, const String &body = String())
 {
     int result;
 
@@ -112,10 +155,11 @@ static int HttpsRequest(const String &url, const String &sasToken, AzureHandler:
         break;
     }
 
+    String responseBody = httpsClient.getString();
     Serial.println("HTTPS Request: " + url);
-    Serial.println("HTTPS Response: " + String(result) + httpsClient.getString().c_str());
+    Serial.println("HTTPS Response: " + String(result) + responseBody);
 
-    return result;
+    return {result, responseBody};
 }
 
 static uint8_t DeviceRegisterStatusDps(const String &url, const String &token, const String &body, const String &key)
@@ -124,12 +168,13 @@ static uint8_t DeviceRegisterStatusDps(const String &url, const String &token, c
 
     httpsClient.begin(espClient, url);
 
-    if (HttpsRequest(url, token, AzureHandler::HttpsActions::POST, body) == HTTP_CODE_OK)
+    auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::POST, body);
+    if (httpResponse == HTTP_CODE_OK)
     {
         Serial.println("DPS: Device already registered previously");
 
         DynamicJsonDocument doc(1024);
-        deserializeJson(doc, httpsClient.getString().c_str());
+        deserializeJson(doc, httpBody.c_str());
         JsonObject jsonObject = doc.as<JsonObject>();
         mqttUserId = jsonObject["deviceId"].as<String>();
         mqttHostName = jsonObject["assignedHub"].as<String>();
@@ -155,12 +200,12 @@ static std::tuple<uint8_t, String> RegisterDeviceDps(const String &url, const St
 
     httpsClient.begin(espClient, url);
 
-    int httpResponse = HttpsRequest(url, token, AzureHandler::HttpsActions::PUT, body);
+    auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::PUT, body);
     if (httpResponse == HTTP_CODE_OK || httpResponse == HTTP_CODE_ACCEPTED)
     {
         Serial.println("DPS: Device registration in progress");
         DynamicJsonDocument doc(1024);
-        deserializeJson(doc, httpsClient.getString().c_str());
+        deserializeJson(doc, httpBody.c_str());
         JsonObject jsonObject = doc.as<JsonObject>();
         operationId = jsonObject["operationId"].as<String>();
 
@@ -185,13 +230,13 @@ static uint8_t OperationStatusDps(const String &url, const String &token, const 
 
     for (uint8_t assignedCounter = 1; assignedCounter <= AzureHandler::MAX_NUM_REGISTRATION_ATTEMPTS; ++assignedCounter)
     {
-        int httpResponse = HttpsRequest(url, token, AzureHandler::HttpsActions::GET);
+        auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::GET);
         if (httpResponse == HTTP_CODE_OK)
         {
             Serial.println("DPS: Device registered successfully");
 
             DynamicJsonDocument doc(1024);
-            deserializeJson(doc, httpsClient.getString().c_str());
+            deserializeJson(doc, httpBody.c_str());
             JsonObject jsonObject = doc.as<JsonObject>()["registrationState"].as<JsonObject>();
             mqttUserId = jsonObject["deviceId"].as<String>();
             mqttHostName = jsonObject["assignedHub"].as<String>();
@@ -238,7 +283,11 @@ static bool ProvisionAzureDps(const String &idScope, const String &deviceId, con
     const String dPSPutContent = "{\"registrationId\": \"" + deviceId + "\"}";
 
     // espClient.setInsecure(); // For testing only
+#if defined(ESP8266)
     espClient.setFingerprint("A7:48:00:FB:3B:91:1F:65:3F:B1:D9:2B:7A:DC:34:76:53:21:AF:3D"); // Finger print DPS
+#elif defined(ESP32)
+    espClient.setCACert(cert);
+#endif
 
     bool isDeviceRegistered = AzureHandler::GENERAL_ERROR;
     if (DeviceRegisterStatusDps(dpsUrlPre + dpsUrlSu, dPSSASToken, dPSPutContent, deviceKey) == AzureHandler::SUCCESS)
@@ -293,7 +342,9 @@ static bool checkConnection()
 
         // demonstrating PubSubClient with all the settings
         // espClient.setInsecure(); // For testing only
+#if defined(ESP8266)
         espClient.setFingerprint("58:2C:05:CC:51:8D:66:E6:97:A9:D3:32:4E:C1:48:FE:65:68:1F:0E"); // Finger print DMN IoT Hub
+#endif
         pubSubClient.connect(mqttUserId.c_str(), iotHubUserString.c_str(), iotHubPassword.c_str(), "lwt", 1, true, "offline", false);
 
         if (pubSubClient.state() == MQTT_CONNECTED)
