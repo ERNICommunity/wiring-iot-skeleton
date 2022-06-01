@@ -1,24 +1,13 @@
 /*
- * FileHandler.h
+ * FileHandler.cpp
  *
  *  Created on: 05.05.2022
  *      Author: Armando Amoros
  */
 
-#ifndef FILEHANDLER_H_
-#define FILEHANDLER_H_
+#include "FileHandler.h"
 
-#if defined(ESP8266)
-#include <LittleFS.h>
-#elif defined(ESP32)
-#include <SPIFFS.h>
-#endif
-
-/**
- * @brief Initialize the file system
- *
- */
-static void initFS()
+void FileHandler::initFS()
 {
     bool isFsInit = false;
 #if defined(ESP8266)
@@ -36,14 +25,7 @@ static void initFS()
     Serial.println("File system mounted successfully");
 }
 
-/**
- * @brief Open a file
- *
- * @param path  Path to the file to be opened
- * @param mode  Access rights required
- * @return File File object to the open file
- */
-static File FsOpen(const char *path, const char *mode)
+File FileHandler::FsOpen(const char *path, const char *mode)
 {
 #if defined(ESP8266)
     return LittleFS.open(path, mode);
@@ -55,4 +37,14 @@ static File FsOpen(const char *path, const char *mode)
 #endif
 }
 
-#endif /* FILEHANDLER_H_ */
+fs::FS *FileHandler::getFileHandler(void)
+{
+#if defined(ESP8266)
+    return &LittleFS;
+#elif defined(ESP32)
+    return &SPIFFS;
+#else
+    Serial.println("File system for this MC is not yet supported");
+    return nullptr;
+#endif
+}
