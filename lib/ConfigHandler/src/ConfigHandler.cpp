@@ -45,18 +45,18 @@ uint8_t ConfigHandler::ConfigHandler::loadConfigurationFromFile(const char *path
     if (outFlag == SUCCESS)
     {
         // Wifi
-        m_sysConfig.wifi.ssid = String(doc["wifi"]["ssid"]);
-        m_sysConfig.wifi.password = String(doc["wifi"]["password"]);
-        m_sysConfig.wifi.accessPointSsid = String(doc["wifi"]["accessPointSsid"]);
-        m_sysConfig.wifi.accessPointPassword = String(doc["wifi"]["accessPointPassword"]);
-        m_sysConfig.wifi.deviceStaticIp = String(doc["wifi"]["deviceStaticIp"]);
+        m_sysConfig.wifi.ssid = String(doc["wifi"]["ssid"].as<String>());
+        m_sysConfig.wifi.password = String(doc["wifi"]["password"].as<String>());
+        m_sysConfig.wifi.accessPointSsid = String(doc["wifi"]["accessPointSsid"].as<String>());
+        m_sysConfig.wifi.accessPointPassword = String(doc["wifi"]["accessPointPassword"].as<String>());
+        m_sysConfig.wifi.deviceStaticIp = String(doc["wifi"]["deviceStaticIp"].as<String>());
         // Landing page
         m_sysConfig.landingPage.disableLandingPage = doc["landingPage"]["disableLandingPage"];
         m_sysConfig.landingPage.gpioForLandingPage = doc["landingPage"]["gpioForLandingPage"];
         // Azure config
-        m_sysConfig.azure.idScope = String(doc["azure"]["idScope"]);
-        m_sysConfig.azure.deviceID = String(doc["azure"]["deviceID"]);
-        m_sysConfig.azure.deviceDerivedKey = String(doc["azure"]["deviceDerivedKey"]);
+        m_sysConfig.azure.idScope = String(doc["azure"]["idScope"].as<String>());
+        m_sysConfig.azure.deviceID = String(doc["azure"]["deviceID"].as<String>());
+        m_sysConfig.azure.deviceDerivedKey = String(doc["azure"]["deviceDerivedKey"].as<String>());
 
         configFile.close();
 

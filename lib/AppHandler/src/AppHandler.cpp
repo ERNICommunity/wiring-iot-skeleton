@@ -121,9 +121,12 @@ uint8_t AppHandler::AppHandler::initAPpp()
     //-----------------------------------------------------------------------------
     // Azure DPS and IoT Hub
     //-----------------------------------------------------------------------------
-    if (m_azureHandler.azureInit(*m_configHandler.getAzureConfig()))
+    if ((WiFi.status() == WL_CONNECTED))
     {
-        Serial.println(F("ERROR: Azure initialization failed."));
+        if (m_azureHandler.azureInit(*m_configHandler.getAzureConfig()))
+        {
+            Serial.println(F("ERROR: Azure initialization failed."));
+        }
     }
 
     //-----------------------------------------------------------------------------
