@@ -46,6 +46,7 @@ void loop()
   {
     sCmd->readSerial(); // process serial commands
   }
+
   scheduleTimers(); // process Timers
   appHandler.loopApp();
 }

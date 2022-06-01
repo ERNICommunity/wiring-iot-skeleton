@@ -12,6 +12,7 @@
 #include "FileHandler.h"
 #include "WifiHandler.h"
 #include "LandingPageHandler.h"
+#include "AzureHandler.h"
 
 #ifndef APPHANDLER_H_
 #define APPHANDLER_H_
@@ -20,7 +21,7 @@ namespace AppHandler
 {
     // Error codes
     constexpr uint8_t SUCCESS = 0;
-    constexpr uint8_t GENERAL_ERROR = 0;
+    constexpr uint8_t GENERAL_ERROR = 1;
 
     /**
      * @brief Class handling the application modules
@@ -30,6 +31,7 @@ namespace AppHandler
     {
     private:
         static ConfigHandler::ConfigHandler m_configHandler;
+        AzureHandler::AzureHandler m_azureHandler;
 
     public:
         /**

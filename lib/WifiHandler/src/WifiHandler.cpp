@@ -20,20 +20,31 @@ static uint8_t enableWifi(const ConfigTypes::wifiCredentials *wifiCredentials)
     uint8_t outFlag = WifiHandler::SUCCESS;
     WiFi.begin(wifiCredentials->ssid.c_str(), wifiCredentials->password.c_str());
 
-    Serial.print("Attempting to connect to WiFi");
-    while (WiFi.status() == WL_DISCONNECTED)
+    if (wifiCredentials->ssid.length() > 0)
     {
-        delay(500);
-        Serial.print('.');
+        Serial.print("Attempting to connect to WiFi");
+        while (WiFi.status() == WL_DISCONNECTED)
+        {
+            delay(500);
+            Serial.print('.');
+        }
+        Serial.println();
+
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            outFlag = WifiHandler::FAIL_CONNECTION;
+        }
+
+        Serial.print("WiFi Connection status: ");
+        Serial.println(WiFi.status());
+        Serial.print("WiFi IP address: ");
+        Serial.println(WiFi.localIP());
     }
-    Serial.println();
-    if (WiFi.status() != WL_CONNECTED)
+    else
     {
+        Serial.print("WiFi SSID is empty");
         outFlag = WifiHandler::FAIL_CONNECTION;
     }
-
-    Serial.print("WiFi IP address: ");
-    Serial.println(WiFi.localIP());
 
     return outFlag;
 }

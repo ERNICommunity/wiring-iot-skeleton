@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>CONFIG IOT DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <h1>Local configurations server. WIFI, Access Point, Azure, ...</h1>
@@ -40,7 +41,7 @@
     <table>
     <tr>
         <td>Disable SoftAP and Landing Page:</td>
-        <td><input type='checkbox' name='lp_dissable' value='%LP_DISSABLE%'/></td>
+        <td><input type='checkbox' name='lp_dissable' %LP_DISSABLE%/></td>
     </tr>
     <tr>
         <td>GPIO to enable Landing Page:</td>
@@ -51,16 +52,16 @@
     <h2>Azure Config Settings</h2>
     <table>
     <tr>
+        <td>Id Scope:</td>
+        <td><input type='text' name='azure_idScope' value='%AZURE_IDSCOPE%'/></td>
+    </tr>
+    <tr>
         <td>Device ID:</td>
         <td><input type='text' name='azure_deviceId' value='%AZURE_DEVICEID%'/></td>
     </tr>
     <tr>
         <td>Device Derived Key:</td>
         <td><input type='password' name='azure_deviceDerivedKey' value='%AZURE_DEVICEDERIVEDKEY%'/></td>
-    </tr>
-    <tr>
-        <td>Id Scope:</td>
-        <td><input type='text' name='azure_idScope' value='%AZURE_IDSCOPE%'/></td>
     </tr>
     </table>
     

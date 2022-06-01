@@ -105,7 +105,7 @@ uint8_t AppHandler::AppHandler::initAPpp()
     //-----------------------------------------------------------------------------
     if (m_configHandler.loadConfigurationFromFile(ConfigHandler::DEFAULT_PATH))
     {
-        Serial.println("ERROR: Loading configurations failed.");
+        Serial.println(F("ERROR: Loading configurations failed."));
         outFlag = GENERAL_ERROR;
     }
 
@@ -114,38 +114,54 @@ uint8_t AppHandler::AppHandler::initAPpp()
     //-----------------------------------------------------------------------------
     if (WifiHandler::initWifi(m_configHandler.getWifiConfig()))
     {
-        Serial.println("ERROR: Wifi initialization failed.");
+        Serial.println(F("ERROR: Wifi initialization failed."));
         outFlag = GENERAL_ERROR;
+    }
+
+    //-----------------------------------------------------------------------------
+    // Azure DPS and IoT Hub
+    //-----------------------------------------------------------------------------
+    if ((WiFi.status() == WL_CONNECTED))
+    {
+        if (m_azureHandler.azureInit(*m_configHandler.getAzureConfig()))
+        {
+            Serial.println(F("ERROR: Azure initialization failed."));
+        }
     }
 
     //-----------------------------------------------------------------------------
     // Landing page
     //-----------------------------------------------------------------------------
-    LandingPageHandler::initLandingPage(saveConfigurations, getConfigurations);
+    if (!m_configHandler.getLandingPageConfig()->disableLandingPage)
+    {
+        LandingPageHandler::initLandingPage(saveConfigurations, getConfigurations);
+    }
 
-#if defined(ESP8266) || defined(ESP32)
-    //-----------------------------------------------------------------------------
-    // ThingSpeak Client
-    //-----------------------------------------------------------------------------
-    WiFiClient *wifiClient = new WiFiClient();
-    ThingSpeak.begin(*wifiClient);
+    /* #if defined(ESP8266) || defined(ESP32)
+        //-----------------------------------------------------------------------------
+        // ThingSpeak Client
+        //-----------------------------------------------------------------------------
+        WiFiClient *wifiClient = new WiFiClient();
+        ThingSpeak.begin(*wifiClient);
 
-    //-----------------------------------------------------------------------------
-    // MQTT Client
-    //-----------------------------------------------------------------------------
-    ECMqttClient.begin(MQTT_SERVER);
-    new TestLedMqttSubscriber();
-    new DefaultMqttSubscriber("test/startup/#");
-    new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
-    new LedTestBlinkPublisher();
-#endif
+        //-----------------------------------------------------------------------------
+        // MQTT Client
+        //-----------------------------------------------------------------------------
+        ECMqttClient.begin(MQTT_SERVER);
+        new TestLedMqttSubscriber();
+        new DefaultMqttSubscriber("test/startup/#");
+        new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
+        new LedTestBlinkPublisher();
+    #endif */
 
     return outFlag;
 }
 
 void AppHandler::AppHandler::loopApp()
 {
-    ECMqttClient.loop(); // process MQTT Client
+    // ECMqttClient.loop(); // process MQTT Client
+
+    m_azureHandler.azureLoop();
 }
 
 uint8_t AppHandler::AppHandler::saveConfigurations(const ConfigTypes::sysConfig &sysConfig, bool makePersisten)
