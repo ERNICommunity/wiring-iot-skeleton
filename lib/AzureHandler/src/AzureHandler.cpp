@@ -177,7 +177,7 @@ static uint8_t DeviceRegisterStatusDps(const String& url, const String& token, c
   auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::POST, body);
   if (httpResponse == HTTP_CODE_OK)
   {
-    Serial.println("DPS: Device already registered previously");
+    Serial.println(F("DPS: Device already registered previously"));
 
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, httpBody.c_str());
@@ -190,7 +190,7 @@ static uint8_t DeviceRegisterStatusDps(const String& url, const String& token, c
   }
   else
   {
-    Serial.println("DPS: Device NOT registered previously");
+    Serial.println(F("DPS: Device NOT registered previously"));
     result = AzureHandler::DEVICE_NOT_REGISTERED;
   }
 
@@ -210,7 +210,7 @@ static std::tuple<uint8_t, String> RegisterDeviceDps(const String& url, const St
   auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::PUT, body);
   if (httpResponse == HTTP_CODE_OK || httpResponse == HTTP_CODE_ACCEPTED)
   {
-    Serial.println("DPS: Device registration in progress");
+    Serial.println(F("DPS: Device registration in progress"));
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, httpBody.c_str());
     JsonObject jsonObject = doc.as<JsonObject>();
@@ -220,7 +220,7 @@ static std::tuple<uint8_t, String> RegisterDeviceDps(const String& url, const St
   }
   else
   {
-    Serial.println("DPS: Device registration FAILED");
+    Serial.println(F("DPS: Device registration FAILED"));
     result = AzureHandler::DEVICE_REGISTRATION_FAILED;
   }
 
@@ -241,7 +241,7 @@ static uint8_t OperationStatusDps(const String& url, const String& token, const 
     auto [httpResponse, httpBody] = HttpsRequest(url, token, AzureHandler::HttpsActions::GET);
     if (httpResponse == HTTP_CODE_OK)
     {
-      Serial.println("DPS: Device registered successfully");
+      Serial.println(F("DPS: Device registered successfully"));
 
       DynamicJsonDocument doc(1024);
       deserializeJson(doc, httpBody.c_str());
@@ -257,7 +257,7 @@ static uint8_t OperationStatusDps(const String& url, const String& token, const 
     {
       if (assignedCounter == AzureHandler::MAX_NUM_REGISTRATION_ATTEMPTS)
       {
-        Serial.println("DPS: Device registration operation taking too long");
+        Serial.println(F("DPS: Device registration operation taking too long"));
         result = AzureHandler::DEVICE_REGISTRATION_OPERATION_FAILED;
         break;
       }
@@ -269,7 +269,7 @@ static uint8_t OperationStatusDps(const String& url, const String& token, const 
     }
     else
     {
-      Serial.println("DPS: Device registration operation FAILED");
+      Serial.println(F("DPS: Device registration operation FAILED"));
       result = AzureHandler::DEVICE_REGISTRATION_OPERATION_FAILED;
       break;
     }
@@ -282,7 +282,7 @@ static uint8_t OperationStatusDps(const String& url, const String& token, const 
 
 static bool ProvisionAzureDps(const String& idScope, const String& deviceId, const String& deviceKey)
 {
-  Serial.println("Starting Azure DPS registration...");
+  Serial.println(F("Starting Azure DPS registration..."));
 
   const String dPSSASToken = AzureDpsPskToToken(idScope, deviceId, deviceKey);
 
@@ -292,7 +292,7 @@ static bool ProvisionAzureDps(const String& idScope, const String& deviceId, con
 
   // espClient.setInsecure(); // For testing only
 #if defined(ESP8266)
-  s_espClient.setFingerprint("A7:48:00:FB:3B:91:1F:65:3F:B1:D9:2B:7A:DC:34:76:53:21:AF:3D"); // SHA1 FP DPS
+  s_espClient.setFingerprint("6E:0D:8E:1E:0F:A6:C1:15:49:2F:DC:54:AF:E1:A5:DA:5C:4D:35:F9"); // SHA1 FP DPS
 #elif defined(ESP32)
   s_espClient.setCACert(s_cert);
 #endif
@@ -348,7 +348,7 @@ static bool checkConnection()
 
   if (!s_pubSubClient.connected())
   {
-    Serial.print("IoTHub: MQTT attempting connection\n");
+    Serial.print(F("IoTHub: MQTT attempting connection\n"));
     String iotHubUserString = s_mqttHostName + "/" + s_mqttUserId + "/?api-version=2020-09-30";
     String iotHubPassword = AzurePskToToken(s_mqttHostName, s_mqttUserId, s_mqttPassword);
 
