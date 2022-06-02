@@ -14,7 +14,7 @@ class SpinTimer;
 class DbgCli_Topic;
 class DbgCli_Command;
 
-class LedTestBlinkPublisher: public MqttTopicPublisher
+class LedTestBlinkPublisher : public MqttTopicPublisher
 {
 public:
   LedTestBlinkPublisher();
@@ -25,11 +25,9 @@ public:
 private:
   SpinTimer* m_blinkTimer;
   bool m_toggle;
-  DbgCli_Topic*   m_ledBlinkPublisherTopic;
+  DbgCli_Topic* m_ledBlinkPublisherTopic;
   DbgCli_Command* m_ledBlinkPublisherEnCmd;
   DbgCli_Command* m_ledBlinkPublisherDisCmd;
 };
 
 #endif /* SRC_LEDTESTBLINKPUBLISHER_H_ */
-
-
