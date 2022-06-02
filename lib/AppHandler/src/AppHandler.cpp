@@ -5,175 +5,102 @@
  *      Author: Armando Amoros
  */
 
-#include <AppHandler.h>
+#include "AppHandler.h"
 
-#include <ECMqttClient.h> // ERNI Community MQTT client wrapper library (depends on MQTT library)
-#include <MqttTopic.h>
-#include <ThingSpeak.h> // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
-#include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
-#include <LedTestBlinkPublisher.h>
-
-//#define MQTT_SERVER "192.168.43.1"
-//#define MQTT_SERVER "iot.eclipse.org"
-#define MQTT_SERVER "test.mosquitto.org"
-//#define MQTT_SERVER "broker.hivemq.com"
+#include <DbgTracePort.h>
 
 //-----------------------------------------------------------------------------
 
 void setupBuiltInLed()
 {
 #if defined(ESP8266)
-    digitalWrite(LED_BUILTIN, 1); // LED state is inverted on ESP8266
+  digitalWrite(LED_BUILTIN, 1); // LED state is inverted on ESP8266
 #else
-    digitalWrite(LED_BUILTIN, 0);
+  digitalWrite(LED_BUILTIN, 0);
 #endif
 }
 
 void setBuiltInLed(bool state)
 {
 #if defined(ESP8266) || defined(BOARD_LOLIN_D32)
-    digitalWrite(LED_BUILTIN, !state); // LED state is inverted on ESP8266 & LOLIN D32
+  digitalWrite(LED_BUILTIN,
+               !state); // LED state is inverted on ESP8266 & LOLIN D32
 #else
-    digitalWrite(LED_BUILTIN, state);
+  digitalWrite(LED_BUILTIN, state);
 #endif
 }
 
-//-----------------------------------------------------------------------------
+ConfigHandler::ConfigHandler AppHandler::AppHandler::s_configHandler;
 
-class TestLedMqttSubscriber : public MqttTopicSubscriber
+uint8_t AppHandler::AppHandler::initApp()
 {
-private:
-    DbgTrace_Port *m_trPort;
+  uint8_t outFlag = SUCCESS;
 
-public:
-    TestLedMqttSubscriber()
-        : MqttTopicSubscriber("test/led"), m_trPort(new DbgTrace_Port("mqttled", DbgTrace_Level::debug))
+  pinMode(LED_BUILTIN, OUTPUT);
+  setBuiltInLed(false);
+
+  //-----------------------------------------------------------------------------
+  // Little FS file system
+  //-----------------------------------------------------------------------------
+  FileHandler::initFS();
+
+  //-----------------------------------------------------------------------------
+  // Load initial configurations
+  //-----------------------------------------------------------------------------
+  if (s_configHandler.loadConfigurationFromFile(ConfigHandler::DEFAULT_PATH))
+  {
+    Serial.println(F("ERROR: Loading configurations failed."));
+    outFlag = GENERAL_ERROR;
+  }
+
+  //-----------------------------------------------------------------------------
+  // Wifi Configuration
+  //-----------------------------------------------------------------------------
+  if (WifiHandler::initWifi(s_configHandler.getWifiConfig()))
+  {
+    Serial.println(F("ERROR: Wifi initialization failed."));
+    outFlag = GENERAL_ERROR;
+  }
+
+  //-----------------------------------------------------------------------------
+  // Azure DPS and IoT Hub
+  //-----------------------------------------------------------------------------
+  if ((WiFi.status() == WL_CONNECTED))
+  {
+    if (m_azureHandler.azureInit(*s_configHandler.getAzureConfig()))
     {
+      Serial.println(F("ERROR: Azure initialization failed."));
     }
+  }
 
-    ~TestLedMqttSubscriber()
-    {
-        delete m_trPort;
-        m_trPort = 0;
-    }
+  //-----------------------------------------------------------------------------
+  // Landing page
+  //-----------------------------------------------------------------------------
+  if (!s_configHandler.getLandingPageConfig()->disableLandingPage)
+  {
+    LandingPageHandler::initLandingPage(saveConfigurations, getConfigurations);
+  }
 
-    bool processMessage(MqttRxMsg *rxMsg)
-    {
-        bool msgHasBeenHandled = false;
-
-        if (0 != rxMsg)
-        {
-            bool state = atoi(rxMsg->getRxMsgString());
-            TR_PRINTF(m_trPort, DbgTrace_Level::debug, "LED state: %s", (state > 0) ? "on" : "off");
-
-            setBuiltInLed(state);
-
-            msgHasBeenHandled = true;
-        }
-        else
-        {
-            TR_PRINTF(m_trPort, DbgTrace_Level::error, "rxMsg unavailable!");
-        }
-        return msgHasBeenHandled;
-    }
-
-private:
-    // forbidden default functions
-    TestLedMqttSubscriber &operator=(const TestLedMqttSubscriber &src); // assignment operator
-    TestLedMqttSubscriber(const TestLedMqttSubscriber &src);            // copy constructor
-};
-
-//-----------------------------------------------------------------------------
-
-ConfigHandler::ConfigHandler AppHandler::AppHandler::m_configHandler;
-
-uint8_t AppHandler::AppHandler::initAPpp()
-{
-    uint8_t outFlag = SUCCESS;
-
-    pinMode(LED_BUILTIN, OUTPUT);
-    setBuiltInLed(false);
-
-    //-----------------------------------------------------------------------------
-    // Little FS file system
-    //-----------------------------------------------------------------------------
-    FileHandler::initFS();
-
-    //-----------------------------------------------------------------------------
-    // Load initial configurations
-    //-----------------------------------------------------------------------------
-    if (m_configHandler.loadConfigurationFromFile(ConfigHandler::DEFAULT_PATH))
-    {
-        Serial.println(F("ERROR: Loading configurations failed."));
-        outFlag = GENERAL_ERROR;
-    }
-
-    //-----------------------------------------------------------------------------
-    // Wifi Configuration
-    //-----------------------------------------------------------------------------
-    if (WifiHandler::initWifi(m_configHandler.getWifiConfig()))
-    {
-        Serial.println(F("ERROR: Wifi initialization failed."));
-        outFlag = GENERAL_ERROR;
-    }
-
-    //-----------------------------------------------------------------------------
-    // Azure DPS and IoT Hub
-    //-----------------------------------------------------------------------------
-    if ((WiFi.status() == WL_CONNECTED))
-    {
-        if (m_azureHandler.azureInit(*m_configHandler.getAzureConfig()))
-        {
-            Serial.println(F("ERROR: Azure initialization failed."));
-        }
-    }
-
-    //-----------------------------------------------------------------------------
-    // Landing page
-    //-----------------------------------------------------------------------------
-    if (!m_configHandler.getLandingPageConfig()->disableLandingPage)
-    {
-        LandingPageHandler::initLandingPage(saveConfigurations, getConfigurations);
-    }
-
-    /* #if defined(ESP8266) || defined(ESP32)
-        //-----------------------------------------------------------------------------
-        // ThingSpeak Client
-        //-----------------------------------------------------------------------------
-        WiFiClient *wifiClient = new WiFiClient();
-        ThingSpeak.begin(*wifiClient);
-
-        //-----------------------------------------------------------------------------
-        // MQTT Client
-        //-----------------------------------------------------------------------------
-        ECMqttClient.begin(MQTT_SERVER);
-        new TestLedMqttSubscriber();
-        new DefaultMqttSubscriber("test/startup/#");
-        new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
-        new LedTestBlinkPublisher();
-    #endif */
-
-    return outFlag;
+  return outFlag;
 }
 
 void AppHandler::AppHandler::loopApp()
 {
-    // ECMqttClient.loop(); // process MQTT Client
-
-    m_azureHandler.azureLoop();
+  m_azureHandler.azureLoop();
 }
 
-uint8_t AppHandler::AppHandler::saveConfigurations(const ConfigTypes::sysConfig &sysConfig, bool makePersisten)
+uint8_t AppHandler::AppHandler::saveConfigurations(const ConfigTypes::sysConfig& sysConfig,
+                                                   bool makePersisten)
 {
-    uint8_t outFlag = SUCCESS;
+  uint8_t outFlag = SUCCESS;
 
-    m_configHandler.setSysConfig(sysConfig, makePersisten);
+  s_configHandler.setSysConfig(sysConfig, makePersisten);
 
-    return outFlag;
+  return outFlag;
 }
 
-const ConfigTypes::sysConfig *AppHandler::AppHandler::getConfigurations(void)
+const ConfigTypes::sysConfig* AppHandler::AppHandler::getConfigurations(void)
 {
-    return m_configHandler.getSysConfig();
+  return s_configHandler.getSysConfig();
 }

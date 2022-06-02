@@ -9,16 +9,16 @@
 
 // PlatformIO libraries
 #include <SerialCommand.h> // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
-#include <SpinTimer.h>     // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
+#include <SpinTimer.h> // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
 
 // private libraries
-#include <ProductDebug.h>
 #include <AppHandler.h>
+#include <ProductDebug.h>
 
-SerialCommand *sCmd = 0;
+SerialCommand* sCmd = 0;
 
 #if defined(ESP8266) || defined(ESP32)
-AppHandler::AppHandler appHandler;
+AppHandler::AppHandler g_appHandler;
 #endif
 
 void setup()
@@ -31,7 +31,7 @@ void setup()
   //-----------------------------------------------------------------------------
   // Application
   //-----------------------------------------------------------------------------
-  uint8_t flag = appHandler.initAPpp();
+  uint8_t flag = g_appHandler.initApp();
   if (flag)
   {
     Serial.print("Application initialization failed with code: ");
@@ -48,5 +48,5 @@ void loop()
   }
 
   scheduleTimers(); // process Timers
-  appHandler.loopApp();
+  g_appHandler.loopApp();
 }
