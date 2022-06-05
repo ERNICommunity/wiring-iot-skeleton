@@ -15,7 +15,6 @@
 
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
-#include <ThingSpeak.h>     // pio lib install 550,  lib details see https://github.com/mathworks/thingspeak-arduino
 #include <SpinTimer.h>      // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
 #include <DbgTracePort.h>
 #include <DbgTraceLevel.h>
@@ -34,21 +33,15 @@
 
 SerialCommand* sCmd = 0;
 
+//-----------------------------------------------------------------------------
+// ESP8266 / ESP32 WiFi Client
+//-----------------------------------------------------------------------------
 #if defined(ESP8266) || defined(ESP32)
-WiFiClient* wifiClient = 0;
+WiFiClient wifiClient;
 #endif
 
 //-----------------------------------------------------------------------------
 
-void setupBuiltInLed()
-{
-#if defined(ESP8266)
-  digitalWrite(LED_BUILTIN, 1);  // LED state is inverted on ESP8266
-#else
-  digitalWrite(LED_BUILTIN, 0);
-#endif
-}
- 
 void setBuiltInLed(bool state)
 {
 #if defined(ESP8266) || defined(BOARD_LOLIN_D32)
@@ -121,23 +114,14 @@ void setup()
   WiFi.mode(WIFI_STA);
 
   //-----------------------------------------------------------------------------
-  // ESP8266 / ESP32 WiFi Client
-  //-----------------------------------------------------------------------------
-  wifiClient = new WiFiClient();
-
-  //-----------------------------------------------------------------------------
-  // ThingSpeak Client
-  //-----------------------------------------------------------------------------
-  ThingSpeak.begin(*(wifiClient));
-
-  //-----------------------------------------------------------------------------
   // MQTT Client
   //-----------------------------------------------------------------------------
-  ECMqttClient.begin(MQTT_SERVER);
+  ECMqttClient.begin(MQTT_SERVER, ECMqttClientClass::defaultMqttPort, wifiClient, WiFi.macAddress().c_str());
   new TestLedMqttSubscriber();
   new DefaultMqttSubscriber("test/startup/#");
   new MqttTopicPublisher("test/startup", WiFi.macAddress().c_str(), MqttTopicPublisher::DO_AUTO_PUBLISH);
   new LedTestBlinkPublisher();
+
 #endif
 }
 

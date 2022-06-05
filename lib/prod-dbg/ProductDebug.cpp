@@ -11,7 +11,6 @@
 #elif defined(ESP32)
 #include <WiFi.h>
 #endif
-#include <ThingSpeak.h>
 #include <DbgCliNode.h>
 #include <DbgCliTopic.h>
 #include <DbgCliCommand.h>
@@ -202,148 +201,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// ThingSpeak Commands
-//-----------------------------------------------------------------------------
-class DbgCli_Cmd_ThingSpeakSetField : public DbgCli_Command
-{
-public:
-  DbgCli_Cmd_ThingSpeakSetField(DbgCli_Topic* thingSpeakTopic)
-  : DbgCli_Command(thingSpeakTopic, "set", "Set ThingSpeak field value.")
-  { }
-
-  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
-  {
-    if (argc - idxToFirstArgToHandle >= 1)
-    {
-      unsigned int field = 1;
-      if (argc - idxToFirstArgToHandle == 2)
-      {
-        field = atoi(args[idxToFirstArgToHandle+1]);
-      }
-      Serial.print("Field: ");
-      Serial.print(field);
-      Serial.print(" - Value: ");
-      Serial.println(static_cast<float>(atof(args[idxToFirstArgToHandle])), 2);
-      ThingSpeak.setField(field, static_cast<float>(atof(args[idxToFirstArgToHandle])));
-    }
-    else
-    {
-      printUsage();
-    }
-  }
-
-  void printUsage()
-  {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg thgspk set <value> [field]");
-    Serial.println("       field: 1..8, default: 1");
-  }
-};
-
-unsigned long thingSpeakChannelId = 0;
-
-class DbgCli_Cmd_ThingSpeakChID : public DbgCli_Command
-{
-public:
-  DbgCli_Cmd_ThingSpeakChID(DbgCli_Topic* thingSpeakTopic)
-  : DbgCli_Command(thingSpeakTopic, "chid", "Set ThingSpeak Channel ID.")
-  { }
-
-  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
-  {
-    if (argc - idxToFirstArgToHandle != 1)
-    {
-      printUsage();
-    }
-    else
-    {
-      thingSpeakChannelId = atoi(args[idxToFirstArgToHandle]);
-      Serial.print("ThingSpeak write fields, Channel Id: ");
-      Serial.println(thingSpeakChannelId);
-    }
-  }
-
-  void printUsage()
-  {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg thgspk chid <channelId>");
-  }
-};
-
-char thingSpeakAPIKey[16+1];
-
-class DbgCli_Cmd_ThingSpeakAPIKey : public DbgCli_Command
-{
-public:
-  DbgCli_Cmd_ThingSpeakAPIKey(DbgCli_Topic* thingSpeakTopic)
-  : DbgCli_Command(thingSpeakTopic, "key", "Set ThingSpeak API key.")
-  { }
-
-  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
-  {
-    if (argc - idxToFirstArgToHandle != 1)
-    {
-      printUsage();
-    }
-    else
-    {
-      strncpy(thingSpeakAPIKey, args[idxToFirstArgToHandle], 16);
-      Serial.print("ThingSpeak write fields, API Key: ");
-      Serial.println(thingSpeakAPIKey);
-    }
-  }
-
-  void printUsage()
-  {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg thgspk key <APIKey>");
-  }
-};
-
-
-class DbgCli_Cmd_ThingSpeakWriteFields : public DbgCli_Command
-{
-public:
-  DbgCli_Cmd_ThingSpeakWriteFields(DbgCli_Topic* thingSpeakTopic)
-  : DbgCli_Command(thingSpeakTopic, "wr", "Write ThingSpeak fields.")
-  { }
-
-  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
-  {
-    if (argc - idxToFirstArgToHandle != 0)
-    {
-      printUsage();
-    }
-    else
-    {
-      Serial.print("ThingSpeak write fields, Channel Id: ");
-      Serial.print(thingSpeakChannelId);
-      Serial.print(", API Key: ");
-      Serial.println(thingSpeakAPIKey);
-      int status = ThingSpeak.writeFields(thingSpeakChannelId, thingSpeakAPIKey);
-      Serial.print("ThingSpeak write done, result: ");
-      Serial.println(status ==  200 ? "OK / Success                                                                           " :
-                     status ==  404 ? "Incorrect API key (or invalid ThingSpeak server address)                               " :
-                     status == -101 ? "Value is out of range or string is too long (> 255 characters)                         " :
-                     status == -201 ? "Invalid field number specified                                                         " :
-                     status == -210 ? "setField() was not called before writeFields()                                         " :
-                     status == -301 ? "Failed to connect to ThingSpeak                                                        " :
-                     status == -302 ? "Unexpected failure during write to ThingSpeak                                          " :
-                     status == -303 ? "Unable to parse response                                                               " :
-                     status == -304 ? "Timeout waiting for server to respond                                                  " :
-                     status == -401 ? "Point was not inserted (most probable cause is the rate limit of once every 15 seconds)" : "UNKNOWN");
-    }
-  }
-
-  void printUsage()
-  {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg thgspk wr");
-  }
-};
-
-
-//-----------------------------------------------------------------------------
 
 void setupProdDebugEnv()
 {
@@ -361,16 +218,6 @@ void setupProdDebugEnv()
   new DbgCli_Cmd_WifiCon(wifiTopic);
 #endif
 
-  //-----------------------------------------------------------------------------
-  // ThingSpeak Commands
-  //-----------------------------------------------------------------------------
-#if defined(ESP8266) || defined(ESP32)
-  DbgCli_Topic* thingSpeakTopic = new DbgCli_Topic(DbgCli_Node::RootNode(), "thgspk", "ThingSpeak debug commands");
-  new DbgCli_Cmd_ThingSpeakSetField(thingSpeakTopic);
-  new DbgCli_Cmd_ThingSpeakChID(thingSpeakTopic);
-  new DbgCli_Cmd_ThingSpeakAPIKey(thingSpeakTopic);
-  new DbgCli_Cmd_ThingSpeakWriteFields(thingSpeakTopic);
-#endif
   Serial.println();
   Serial.println("---------------------------------------------");
   Serial.println("Hello from Wiring IoT Controller!");
