@@ -90,6 +90,16 @@ void AppHandler::AppHandler::loopApp()
   m_azureHandler.azureLoop();
 }
 
+uint8_t AppHandler::AppHandler::sendAzureTelemetry(String message) const
+{
+  uint8_t flag = SUCCESS;
+  if (m_azureHandler.sendTelemetry(message) != AzureHandler::SUCCESS)
+  {
+    flag = GENERAL_ERROR;
+  }
+  return flag;
+}
+
 uint8_t AppHandler::AppHandler::saveConfigurations(const ConfigTypes::sysConfig& sysConfig,
                                                    bool makePersisten)
 {
