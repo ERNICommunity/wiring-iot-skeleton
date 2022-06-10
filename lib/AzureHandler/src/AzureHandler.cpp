@@ -21,6 +21,8 @@
 #include <HTTPClient.h>
 #include <mbedtls/md.h>
 
+#include <ECMqttClient.h>
+
 const char s_cert[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
 MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ
@@ -54,6 +56,7 @@ WiFiClientSecure s_espClient;
 
 HTTPClient s_httpsClient;
 
+// TODO: deaktivate this instance
 PubSubClient s_pubSubClient(s_espClient);
 
 WiFiUDP s_ntpUDP;
@@ -342,6 +345,8 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length)
   }
 }
 
+
+// TODO: ensure the ConMonAdapter in ECMqttClient can reach this here!! add dep inj. to ECMqttClient!!
 static bool checkConnection()
 {
   bool result = AzureHandler::SUCCESS;
@@ -357,6 +362,8 @@ static bool checkConnection()
 #if defined(ESP8266)
     s_espClient.setFingerprint("58:2C:05:CC:51:8D:66:E6:97:A9:D3:32:4E:C1:48:FE:65:68:1F:0E"); // SHA1 FP IoT
 #endif
+
+    // TODO: ensure ECMqttClient provides enhanced connect method I/F on MqttClientWrapper!!
     s_pubSubClient.connect(s_mqttUserId.c_str(), iotHubUserString.c_str(), iotHubPassword.c_str(), "lwt", 1,
                            true, "offline", false);
 
@@ -397,9 +404,10 @@ uint8_t AzureHandler::AzureHandler::azureInit(const ConfigTypes::azureConfig& co
 
   if (m_isDeviceRegistered == SUCCESS)
   {
-    s_pubSubClient.setServer(s_mqttHostName.c_str(), 8883);
-    s_pubSubClient.setCallback(mqttCallback);
-    s_pubSubClient.setBufferSize(MQTT_PACKET_SIZE);
+    ECMqttClient.begin(s_mqttHostName.c_str(), ECMqttClientClass::defaultSecureMqttPort, s_espClient, config.deviceID.c_str());
+    // s_pubSubClient.setServer(s_mqttHostName.c_str(), 8883);
+    // s_pubSubClient.setCallback(mqttCallback);
+    // s_pubSubClient.setBufferSize(MQTT_PACKET_SIZE); TODO: ensure this can be set inside ECMqttClient component
   }
 
   return 0;
@@ -430,8 +438,11 @@ void AzureHandler::AzureHandler::azureLoop(void)
       s_pubSubClient.publish(String("devices/" + s_mqttUserId + "/messages/events/").c_str(), json.c_str());
     }
 
-    s_pubSubClient.loop();
+    // s_pubSubClient.loop();
   }
 
+  ECMqttClient.loop();
+
   s_timeClient.update();
+
 }
