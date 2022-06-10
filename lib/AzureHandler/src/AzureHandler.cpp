@@ -363,15 +363,16 @@ static bool checkConnection()
     if (s_pubSubClient.state() == MQTT_CONNECTED)
     {
       Serial.println("IoTHub: Connection successful");
-      s_pubSubClient.subscribe(
-          String("devices/" + s_mqttUserId + "/messages/devicebound/#").c_str()); // cloud to
-                                                                                  // device
-                                                                                  // messages
-      s_pubSubClient.subscribe(String("$iothub/twin/res/#").c_str());             // initial twin response
-      s_pubSubClient.publish(String("$iothub/twin/GET/?$rid=1").c_str(), "");     // request the initial twin
-      s_pubSubClient.subscribe(String("$iothub/twin/PATCH/properties/desired/#").c_str()); // future twin
-                                                                                           // updates
-      s_pubSubClient.subscribe(String("$iothub/methods/POST/#").c_str());                  // direct methods
+      // Cloud to device messages
+      s_pubSubClient.subscribe(String("devices/" + s_mqttUserId + "/messages/devicebound/#").c_str());
+      // Twin topic
+      s_pubSubClient.subscribe(String("$iothub/twin/res/#").c_str());
+      // Request initial twin
+      s_pubSubClient.publish(String("$iothub/twin/GET/?$rid=1").c_str(), "");
+      // Topic for twin updates
+      s_pubSubClient.subscribe(String("$iothub/twin/PATCH/properties/desired/#").c_str());
+      // Topic for direct methods
+      s_pubSubClient.subscribe(String("$iothub/methods/POST/#").c_str());
     }
     else
     {
