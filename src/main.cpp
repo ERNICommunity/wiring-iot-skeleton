@@ -103,6 +103,25 @@ static String constructMessage(void)
   return message;
 }
 
+constexpr uint32_t MSG_INTERVAL_MS = 15000;
+/**
+ * @brief Sample code to send Azure Iot Hub telemetry
+ *
+ */
+class MsgSenderSpinTimerAction : public SpinTimerAction
+{
+public:
+  void timeExpired()
+  {
+    uint8_t flag = g_appHandler.sendAzureTelemetry(constructMessage());
+    if (flag != AppHandler::SUCCESS)
+    {
+      Serial.print("Send IoT Hub telemetry failed with code: ");
+      Serial.println(flag);
+    }
+  }
+};
+
 void setup()
 {
   //-----------------------------------------------------------------------------
@@ -119,6 +138,12 @@ void setup()
     Serial.print("Application initialization failed with code: ");
     Serial.println(flag);
   }
+
+  //-----------------------------------------------------------------------------
+  // Sample code
+  //-----------------------------------------------------------------------------
+  new SpinTimer(MSG_INTERVAL_MS, new MsgSenderSpinTimerAction(), SpinTimer::IS_RECURRING,
+                SpinTimer::IS_AUTOSTART);
 }
 
 void loop()
@@ -131,22 +156,4 @@ void loop()
 
   scheduleTimers(); // process Timers
   g_appHandler.loopApp();
-
-  //-----------------------------------------------------------------------------
-  // Sample code to send Azure Iot Hub telemetry
-  //-----------------------------------------------------------------------------
-  static uint32_t lastMsg = 0;
-  uint32_t current = millis();
-  // Send messages every 15 seconds
-  if (current - lastMsg > 15000)
-  {
-    lastMsg = current;
-
-    uint8_t flag = g_appHandler.sendAzureTelemetry(constructMessage());
-    if (flag != AppHandler::SUCCESS)
-    {
-      Serial.print("Send IoT Hub telemetry failed with code: ");
-      Serial.println(flag);
-    }
-  }
 }
