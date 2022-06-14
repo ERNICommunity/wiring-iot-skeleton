@@ -47,6 +47,14 @@ public:
   void loopApp(void);
 
   /**
+   * @brief Send message to the Azure Iot Hub
+   *
+   * @param message   Message to be sent
+   * @return uint8_t  Error code, 0 if successful
+   */
+  uint8_t sendAzureTelemetry(String message) const;
+
+  /**
    * @brief Callback function to modify configurations in s_configHandler and save to file
    *
    * @param sysConfig         Configuration to be updated

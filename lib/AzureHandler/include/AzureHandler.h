@@ -26,6 +26,10 @@ constexpr uint8_t GENERAL_ERROR = 1;
 constexpr uint8_t DEVICE_NOT_REGISTERED = 2;
 constexpr uint8_t DEVICE_REGISTRATION_FAILED = 3;
 constexpr uint8_t DEVICE_REGISTRATION_OPERATION_FAILED = 4;
+constexpr uint8_t NTP_CLIENT_FAILED = 5;
+constexpr uint8_t MQTT_CLIENT_CONNECTION_FAILED = 6;
+constexpr uint8_t AZURE_HANDLER_NOT_INITIALIZED = 7;
+constexpr uint8_t MQTT_PUBLISH_FAILED = 8;
 
 constexpr uint8_t MAX_NUM_REGISTRATION_ATTEMPTS = 5;
 
@@ -51,10 +55,19 @@ public:
   uint8_t azureInit(const ConfigTypes::azureConfig& config);
 
   /**
-   * @brief   Loop running Azure IoT hub messaging
+   * @brief Loop running Azure IoT hub messaging
    *
+   * @return uint8_t Error code, 0 if successful
    */
-  void azureLoop(void);
+  uint8_t azureLoop(void);
+
+  /**
+   * @brief Send telemetry to the devices/{deviceId}/messages/events topic
+   *
+   * @param message   Message to be sent to the IoT Hub Topic
+   * @return uint8_t  Error code, 0 if successful
+   */
+  uint8_t sendTelemetry(String& message) const;
 
 private:
   AzureHandler(const AzureHandler&);

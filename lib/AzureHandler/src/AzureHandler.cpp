@@ -363,15 +363,16 @@ static bool checkConnection()
     if (s_pubSubClient.state() == MQTT_CONNECTED)
     {
       Serial.println("IoTHub: Connection successful");
-      s_pubSubClient.subscribe(
-          String("devices/" + s_mqttUserId + "/messages/devicebound/#").c_str()); // cloud to
-                                                                                  // device
-                                                                                  // messages
-      s_pubSubClient.subscribe(String("$iothub/twin/res/#").c_str());             // initial twin response
-      s_pubSubClient.publish(String("$iothub/twin/GET/?$rid=1").c_str(), "");     // request the initial twin
-      s_pubSubClient.subscribe(String("$iothub/twin/PATCH/properties/desired/#").c_str()); // future twin
-                                                                                           // updates
-      s_pubSubClient.subscribe(String("$iothub/methods/POST/#").c_str());                  // direct methods
+      // Cloud to device messages
+      s_pubSubClient.subscribe(String("devices/" + s_mqttUserId + "/messages/devicebound/#").c_str());
+      // Twin topic
+      s_pubSubClient.subscribe(String("$iothub/twin/res/#").c_str());
+      // Request initial twin
+      s_pubSubClient.publish(String("$iothub/twin/GET/?$rid=1").c_str(), "");
+      // Topic for twin updates
+      s_pubSubClient.subscribe(String("$iothub/twin/PATCH/properties/desired/#").c_str());
+      // Topic for direct methods
+      s_pubSubClient.subscribe(String("$iothub/methods/POST/#").c_str());
     }
     else
     {
@@ -405,33 +406,39 @@ uint8_t AzureHandler::AzureHandler::azureInit(const ConfigTypes::azureConfig& co
   return 0;
 }
 
-void AzureHandler::AzureHandler::azureLoop(void)
+uint8_t AzureHandler::AzureHandler::azureLoop(void)
 {
   if (m_isDeviceRegistered != SUCCESS)
   {
-    return;
+    return AZURE_HANDLER_NOT_INITIALIZED;
   }
 
-  if (checkConnection() == SUCCESS)
+  if (checkConnection() != SUCCESS || !s_pubSubClient.loop())
   {
-    static long lastMsg = 0;
-    // Send messages every 15 seconds
-    if (millis() - lastMsg > 15000)
-    {
-      lastMsg = millis();
-
-      // Do the real work here
-      String json = "{\"message\": {\"epoch\": " + String(s_timeClient.getEpochTime()) + ", ";
-      json += "\"heap\": " + String(ESP.getFreeHeap()) + "}}";
-      Serial.print("Sending Message: ");
-      Serial.println(json);
-      Serial.print("to: ");
-      Serial.println(String("devices/" + s_mqttUserId + "/messages/events/"));
-      s_pubSubClient.publish(String("devices/" + s_mqttUserId + "/messages/events/").c_str(), json.c_str());
-    }
-
-    s_pubSubClient.loop();
+    return MQTT_CLIENT_CONNECTION_FAILED;
   }
 
-  s_timeClient.update();
+  if (!s_timeClient.update())
+  {
+    return NTP_CLIENT_FAILED;
+  }
+
+  return SUCCESS;
+}
+
+uint8_t AzureHandler::AzureHandler::sendTelemetry(String& message) const
+{
+  if (m_isDeviceRegistered != SUCCESS)
+  {
+    return AZURE_HANDLER_NOT_INITIALIZED;
+  }
+
+  uint8_t flag = SUCCESS;
+  if (!s_pubSubClient.publish(String("devices/" + s_mqttUserId + "/messages/events/").c_str(),
+                              message.c_str()))
+  {
+    flag = MQTT_PUBLISH_FAILED;
+  }
+
+  return flag;
 }
