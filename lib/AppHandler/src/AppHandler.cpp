@@ -12,15 +12,6 @@
 
 //-----------------------------------------------------------------------------
 
-void setupBuiltInLed()
-{
-#if defined(ESP8266)
-  digitalWrite(LED_BUILTIN, 1); // LED state is inverted on ESP8266
-#else
-  digitalWrite(LED_BUILTIN, 0);
-#endif
-}
-
 void setBuiltInLed(bool state)
 {
 #if defined(ESP8266) || defined(BOARD_LOLIN_D32)
