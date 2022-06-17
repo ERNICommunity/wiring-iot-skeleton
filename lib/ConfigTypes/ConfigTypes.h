@@ -32,6 +32,14 @@ struct landingPageConfig
 };
 typedef struct landingPageConfig landingPageConfig;
 
+struct deviceLocationConfig
+{
+  double latitude{};
+  double longitude{};
+  double altitude{};
+};
+typedef struct deviceLocationConfig deviceLocationConfig;
+
 struct azureConfig
 {
   String deviceID{};
@@ -44,6 +52,7 @@ struct sysConfig
 {
   wifiCredentials wifi;
   landingPageConfig landingPage;
+  deviceLocationConfig location;
   azureConfig azure;
 };
 typedef struct sysConfig sysConfig;
