@@ -17,7 +17,7 @@
 #include <AppHandler.h>
 #include <ProductDebug.h>
 
-SerialCommand* sCmd = 0;
+SerialCommand* sCmd = nullptr;
 
 #if defined(ESP8266) || defined(ESP32)
 AppHandler::AppHandler g_appHandler;
@@ -40,7 +40,9 @@ static String getFormattedDate(uint32_t secs)
 
   // Get year and days after year start
   while ((days += (LEAP_YEAR(year) ? 366 : 365)) <= rawTime)
+  {
     year++;
+  }
   days = rawTime - days + (LEAP_YEAR(year) ? 366 : 365);
 
   // Get month and days after month start
@@ -56,7 +58,9 @@ static String getFormattedDate(uint32_t secs)
       monthLength = monthDays[month];
     }
     if (days < monthLength)
+    {
       break;
+    }
     days -= monthLength;
   }
 
@@ -82,10 +86,11 @@ static String constructMessage(void)
     delay(500);
   }
 
-  // Rome coordinates
-  String longitude = "12.4659587";
-  String latitude = "41.9101776";
-  String altitude = "15";
+  // Get coordinates from configuration
+  const ConfigTypes::sysConfig* configs = g_appHandler.getConfigurations();
+  String longitude = String(configs->location.longitude, 13);
+  String latitude = String(configs->location.latitude, 13);
+  String altitude = String(configs->location.altitude, 13);
 
   String timeStamp = getFormattedDate(timeClient.getEpochTime()) + " " + timeClient.getFormattedTime() +
                      "+00";
@@ -111,7 +116,7 @@ constexpr uint32_t MSG_INTERVAL_MS = 15000;
 class MsgSenderSpinTimerAction : public SpinTimerAction
 {
 public:
-  void timeExpired()
+  void timeExpired() override
   {
     uint8_t flag = g_appHandler.sendAzureTelemetry(constructMessage());
     if (flag != AppHandler::SUCCESS)
@@ -133,7 +138,7 @@ void setup()
   // Application
   //-----------------------------------------------------------------------------
   uint8_t flag = g_appHandler.initApp();
-  if (flag)
+  if (flag != AppHandler::SUCCESS)
   {
     Serial.print("Application initialization failed with code: ");
     Serial.println(flag);
@@ -149,7 +154,7 @@ void setup()
 void loop()
 {
   // file deepcode ignore CppSameEvalBinaryExpressionfalse: sCmd gets instantiated by setupProdDebugEnv()
-  if (0 != sCmd)
+  if (nullptr != sCmd)
   {
     sCmd->readSerial(); // process serial commands
   }

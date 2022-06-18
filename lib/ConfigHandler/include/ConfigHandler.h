@@ -88,6 +88,16 @@ public:
   }
 
   /**
+   * @brief Get the Location Config struct
+   *
+   * @return const deviceLocationConfig*
+   */
+  const ConfigTypes::deviceLocationConfig* getLocationConfig(void) const
+  {
+    return &m_sysConfig.location;
+  }
+
+  /**
    * @brief Get the Azure Config struct
    *
    * @return const azureConfig*
