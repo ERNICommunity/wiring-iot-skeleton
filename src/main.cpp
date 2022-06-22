@@ -9,15 +9,11 @@
 
 // PlatformIO libraries
 #include <NTPClient.h>
-#include <SerialCommand.h> // pio lib install 173,  lib details see https://github.com/kroimon/Arduino-SerialCommand
 #include <SpinTimer.h> // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
 #include <WiFiUdp.h>
 
 // private libraries
 #include <AppHandler.h>
-#include <ProductDebug.h>
-
-SerialCommand* sCmd = nullptr;
 
 #if defined(ESP8266) || defined(ESP32)
 AppHandler::AppHandler g_appHandler;
@@ -130,11 +126,6 @@ public:
 void setup()
 {
   //-----------------------------------------------------------------------------
-  // Debug
-  //-----------------------------------------------------------------------------
-  setupProdDebugEnv();
-
-  //-----------------------------------------------------------------------------
   // Application
   //-----------------------------------------------------------------------------
   uint8_t flag = g_appHandler.initApp();
@@ -147,18 +138,15 @@ void setup()
   //-----------------------------------------------------------------------------
   // Sample code
   //-----------------------------------------------------------------------------
-  new SpinTimer(MSG_INTERVAL_MS, new MsgSenderSpinTimerAction(), SpinTimer::IS_RECURRING,
-                SpinTimer::IS_AUTOSTART);
+  if (flag == AppHandler::SUCCESS)
+  {
+    new SpinTimer(MSG_INTERVAL_MS, new MsgSenderSpinTimerAction(), SpinTimer::IS_RECURRING,
+                  SpinTimer::IS_AUTOSTART);
+  }
 }
 
 void loop()
 {
-  // file deepcode ignore CppSameEvalBinaryExpressionfalse: sCmd gets instantiated by setupProdDebugEnv()
-  if (nullptr != sCmd)
-  {
-    sCmd->readSerial(); // process serial commands
-  }
-
   scheduleTimers(); // process Timers
   g_appHandler.loopApp();
 }
