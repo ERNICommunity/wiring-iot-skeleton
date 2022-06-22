@@ -5,13 +5,14 @@ With this project you have a good starting point to create your own application 
 
 The project is suitable for the following controller boards:
 
+* [LOLIN D32](https://www.wemos.cc/en/latest/d32/d32.html#technical-specs)
+* DoIt ESP32 DEVKIT V1
 * Wemos D1 Mini
 * NodeMcu
 * [Adafruit ESP8266 Huzzah](https://www.adafruit.com/product/2471 "Adafruit HUZZAH ESP8266 Breakout")
-* DoIt ESP32 DEVKIT V1
 
 ## Purpose
-This project builds up an Arduino Framework based IoT application skeleton and it comprises of several components helping with debugging and integrating embedded applications on several different contoller modules.
+This project builds up an Arduino Framework based IoT device application skeleton and it comprises of several components helping with debugging and integrating embedded applications on several different contoller modules.
 
 This skeleton application can help you to build up your own Arduino Framework based applications while working with [PlatformIO](http://platformio.org "Cross-platform build system").
 
