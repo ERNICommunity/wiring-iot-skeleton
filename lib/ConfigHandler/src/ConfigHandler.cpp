@@ -55,6 +55,10 @@ uint8_t ConfigHandler::ConfigHandler::loadConfigurationFromFile(const char* path
     // Landing page
     m_sysConfig.landingPage.disableLandingPage = doc["landingPage"]["disableLandingPage"];
     m_sysConfig.landingPage.gpioForLandingPage = doc["landingPage"]["gpioForLandingPage"];
+    // Device location
+    m_sysConfig.location.latitude = doc["location"]["latitude"];
+    m_sysConfig.location.longitude = doc["location"]["longitude"];
+    m_sysConfig.location.altitude = doc["location"]["altitude"];
     // Azure config
     m_sysConfig.azure.idScope = String(doc["azure"]["idScope"].as<String>());
     m_sysConfig.azure.deviceID = String(doc["azure"]["deviceID"].as<String>());
@@ -95,6 +99,10 @@ uint8_t ConfigHandler::ConfigHandler::saveConfigurationToFile(const char* path) 
     JsonObject landingPageConfig = doc.createNestedObject("landingPage");
     landingPageConfig["disableLandingPage"] = m_sysConfig.landingPage.disableLandingPage;
     landingPageConfig["gpioForLandingPage"] = m_sysConfig.landingPage.gpioForLandingPage;
+    JsonObject loactionConfig = doc.createNestedObject("location");
+    loactionConfig["latitude"] = m_sysConfig.location.latitude;
+    loactionConfig["longitude"] = m_sysConfig.location.longitude;
+    loactionConfig["altitude"] = m_sysConfig.location.altitude;
     JsonObject azureConfig = doc.createNestedObject("azure");
     azureConfig["idScope"] = m_sysConfig.azure.idScope;
     azureConfig["deviceID"] = m_sysConfig.azure.deviceID;
@@ -145,6 +153,14 @@ void ConfigHandler::ConfigHandler::printConfiguration() const
   Serial.println(m_sysConfig.landingPage.disableLandingPage);
   Serial.print(F("\tGPIO for landing page: "));
   Serial.println(m_sysConfig.landingPage.gpioForLandingPage);
+
+  Serial.println(F("Location:"));
+  Serial.print(F("\tLatitude: "));
+  Serial.println(m_sysConfig.location.latitude, 10);
+  Serial.print(F("\tLongitude: "));
+  Serial.println(m_sysConfig.location.longitude, 10);
+  Serial.print(F("\tAltitude: "));
+  Serial.println(m_sysConfig.location.altitude, 10);
 
   Serial.println(F("Azure:"));
   Serial.print(F("\tId scope: "));
