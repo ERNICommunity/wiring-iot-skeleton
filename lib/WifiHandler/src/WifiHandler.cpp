@@ -7,16 +7,16 @@
 
 #include "WifiHandler.h"
 
-static void enableAccessPoint(const ConfigTypes::wifiCredentials* wifiCredentials)
+static void enableAccessPoint(const ConfigTypes::wifiCredentials& wifiCredentials)
 {
-  if (!wifiCredentials->accessPointSsid.isEmpty())
+  if (!wifiCredentials.accessPointSsid.isEmpty())
   {
-    WiFi.softAP(wifiCredentials->accessPointSsid.c_str(), wifiCredentials->accessPointPassword.c_str());
+    WiFi.softAP(wifiCredentials.accessPointSsid.c_str(), wifiCredentials.accessPointPassword.c_str());
   }
-  if (!wifiCredentials->deviceStaticIp.isEmpty())
+  if (!wifiCredentials.deviceStaticIp.isEmpty())
   {
     IPAddress ipAddress, subnet;
-    ipAddress.fromString(wifiCredentials->deviceStaticIp.c_str());
+    ipAddress.fromString(wifiCredentials.deviceStaticIp.c_str());
     subnet.fromString("255.255.255.0");
     WiFi.softAPConfig(ipAddress, ipAddress, subnet);
   }
@@ -25,12 +25,12 @@ static void enableAccessPoint(const ConfigTypes::wifiCredentials* wifiCredential
   Serial.println(WiFi.softAPIP());
 }
 
-static uint8_t enableWifi(const ConfigTypes::wifiCredentials* wifiCredentials)
+static uint8_t enableWifi(const ConfigTypes::wifiCredentials& wifiCredentials)
 {
   uint8_t outFlag = WifiHandler::SUCCESS;
-  WiFi.begin(wifiCredentials->ssid.c_str(), wifiCredentials->password.c_str());
+  WiFi.begin(wifiCredentials.ssid.c_str(), wifiCredentials.password.c_str());
 
-  if (wifiCredentials->ssid.length() > 0)
+  if (wifiCredentials.ssid.length() > 0)
   {
     Serial.print("Attempting to connect to WiFi");
     while (WiFi.status() == WL_DISCONNECTED)
@@ -40,15 +40,17 @@ static uint8_t enableWifi(const ConfigTypes::wifiCredentials* wifiCredentials)
     }
     Serial.println();
 
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      Serial.print("WiFi Connection status: ");
+      Serial.println(WiFi.status());
+      Serial.print("WiFi IP address: ");
+      Serial.println(WiFi.localIP());
+    }
+    else
     {
       outFlag = WifiHandler::FAIL_CONNECTION;
     }
-
-    Serial.print("WiFi Connection status: ");
-    Serial.println(WiFi.status());
-    Serial.print("WiFi IP address: ");
-    Serial.println(WiFi.localIP());
   }
   else
   {
@@ -59,8 +61,9 @@ static uint8_t enableWifi(const ConfigTypes::wifiCredentials* wifiCredentials)
   return outFlag;
 }
 
-uint8_t WifiHandler::initWifi(const ConfigTypes::wifiCredentials* wifiCredentials)
+uint8_t WifiHandler::WifiHandler::initWifi(const ConfigTypes::wifiCredentials* wifiCredentials)
 {
+  m_wifiCredentials = *wifiCredentials;
   uint8_t outFlag = SUCCESS;
 #if defined(ESP8266)
   enableWiFiAtBootTime();
@@ -73,8 +76,20 @@ uint8_t WifiHandler::initWifi(const ConfigTypes::wifiCredentials* wifiCredential
   return WIFI_DEVICE_NOT_SUPPORTED;
 #endif
 
-  enableAccessPoint(wifiCredentials);
-  outFlag = enableWifi(wifiCredentials);
+  enableAccessPoint(m_wifiCredentials);
+  outFlag = enableWifi(m_wifiCredentials);
+
+  return outFlag;
+}
+
+uint8_t WifiHandler::WifiHandler::checkWifiConnection()
+{
+  uint8_t outFlag = SUCCESS;
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    outFlag = WIFI_DISCONNECTED;
+  }
 
   return outFlag;
 }

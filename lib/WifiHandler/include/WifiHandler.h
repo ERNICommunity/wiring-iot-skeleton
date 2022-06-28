@@ -28,14 +28,34 @@ namespace WifiHandler
 constexpr uint8_t SUCCESS = 0;
 constexpr uint8_t FAIL_CONNECTION = 1;
 constexpr uint8_t DEVICE_NOT_SUPPORTED = 2;
+constexpr uint8_t WIFI_DISCONNECTED = 3;
 
-/**
- * @brief Initialize Wifi module
- *
- * @param wifiCredentials   Wifi credentials
- * @return uint8_t          Error code. 0 if successful
- */
-uint8_t initWifi(const ConfigTypes::wifiCredentials* wifiCredentials);
+class WifiHandler
+{
+public:
+  WifiHandler() = default;
+  virtual ~WifiHandler() = default;
 
+  /**
+   * @brief Initialize Wifi module
+   *
+   * @param wifiCredentials   Wifi credentials
+   * @return uint8_t          Error code. 0 if successful
+   */
+  uint8_t initWifi(const ConfigTypes::wifiCredentials* wifiCredentials);
+
+  /**
+   * @brief Check wifi connection and reconnect if necessary
+   *
+   * @return uint8_t    Error code. 0 if successful
+   */
+  uint8_t checkWifiConnection();
+
+private:
+  WifiHandler(const WifiHandler&);
+  WifiHandler& operator=(const WifiHandler&);
+
+  ConfigTypes::wifiCredentials m_wifiCredentials;
+};
 } // namespace WifiHandler
 #endif /* WIFIHANDLER_H_ */

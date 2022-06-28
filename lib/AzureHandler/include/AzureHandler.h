@@ -77,7 +77,7 @@ private:
    * @brief Defines if Azure module was initialized correctly
    *
    */
-  bool m_isDeviceRegistered{false};
+  uint8_t m_isDeviceRegistered{false};
 };
 } // namespace AzureHandler
 #endif /* AZUREHANDLER_H_ */

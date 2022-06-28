@@ -17,8 +17,8 @@ AsyncWebServer* s_server;
 
 const ConfigTypes::sysConfig* s_sysConfig;
 
-void LandingPageHandler::initLandingPage(LandingPageHandler::saveConfigCallback_t saveConfigCallback,
-                                         LandingPageHandler::getConfigCallback_t getConfigCallback)
+void LandingPageHandler::initLandingPage(ConfigTypes::saveConfigCallback_t saveConfigCallback,
+                                         ConfigTypes::getConfigCallback_t getConfigCallback)
 {
   s_server = new AsyncWebServer(80);
   s_sysConfig = getConfigCallback();
@@ -63,31 +63,31 @@ void LandingPageHandler::initLandingPage(LandingPageHandler::saveConfigCallback_
 
 const String LandingPageHandler::processor(const String& var)
 {
-  if (var == "SSID")
+  if (static_cast<bool>(var == "SSID"))
   {
     return String(s_sysConfig->wifi.ssid.c_str());
   }
-  if (var == "PASSWORD")
+  if (static_cast<bool>(var == "PASSWORD"))
   {
     return String(s_sysConfig->wifi.password.c_str());
   }
-  if (var == "AP_SSID")
+  if (static_cast<bool>(var == "AP_SSID"))
   {
     return String(s_sysConfig->wifi.accessPointSsid.c_str());
   }
-  if (var == "AP_PASSWORD")
+  if (static_cast<bool>(var == "AP_PASSWORD"))
   {
     return String(s_sysConfig->wifi.accessPointPassword.c_str());
   }
-  if (var == "AP_STATICIP")
+  if (static_cast<bool>(var == "AP_STATICIP"))
   {
     return String(s_sysConfig->wifi.deviceStaticIp.c_str());
   }
-  if (var == "LP_DISSABLE")
+  if (static_cast<bool>(var == "LP_DISSABLE"))
   {
     return s_sysConfig->landingPage.disableLandingPage ? "checked" : "";
   }
-  if (var == "LP_GPIO")
+  if (static_cast<bool>(var == "LP_GPIO"))
   {
     return String(s_sysConfig->landingPage.gpioForLandingPage);
   }
@@ -103,15 +103,15 @@ const String LandingPageHandler::processor(const String& var)
   {
     return String(s_sysConfig->location.altitude, 10);
   }
-  if (var == "AZURE_DEVICEID")
+  if (static_cast<bool>(var == "AZURE_DEVICEID"))
   {
     return String(s_sysConfig->azure.deviceID.c_str());
   }
-  if (var == "AZURE_DEVICEDERIVEDKEY")
+  if (static_cast<bool>(var == "AZURE_DEVICEDERIVEDKEY"))
   {
     return String(s_sysConfig->azure.deviceDerivedKey.c_str());
   }
-  if (var == "AZURE_IDSCOPE")
+  if (static_cast<bool>(var == "AZURE_IDSCOPE"))
   {
     return String(s_sysConfig->azure.idScope.c_str());
   }
