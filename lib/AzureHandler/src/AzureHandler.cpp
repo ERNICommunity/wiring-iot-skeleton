@@ -67,7 +67,8 @@ static String Sha256Sign(String dataToSign, String preSharedKey)
   unsigned int contextSize;
 
   // need to base64 decode the Preshared key and the length
-  int base64_decoded_device_length = decode_base64((unsigned char*) preSharedKey.c_str(), decodedPSK);
+  int base64_decoded_device_length =
+      decode_base64(reinterpret_cast<unsigned char*>(const_cast<char*>(preSharedKey.c_str())), decodedPSK);
 
 #if defined(ESP8266)
   br_sha256_context sha256_context;
@@ -88,7 +89,8 @@ static String Sha256Sign(String dataToSign, String preSharedKey)
   mbedtls_md_init(&ctx);
   mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), 1);
   mbedtls_md_hmac_starts(&ctx, decodedPSK, base64_decoded_device_length);
-  mbedtls_md_hmac_update(&ctx, (const unsigned char*) dataToSign.c_str(), strlen(dataToSign.c_str()));
+  mbedtls_md_hmac_update(&ctx, reinterpret_cast<const unsigned char*>(dataToSign.c_str()),
+                         strlen(dataToSign.c_str()));
   mbedtls_md_hmac_finish(&ctx, encryptedSignature);
   mbedtls_md_free(&ctx);
 
@@ -99,7 +101,7 @@ static String Sha256Sign(String dataToSign, String preSharedKey)
   encode_base64(encryptedSignature, contextSize, encodedSignature);
 
   // creating the real SAS Token
-  return String((char*) encodedSignature);
+  return String(reinterpret_cast<char*>(encodedSignature));
 }
 
 static String urlEncodeBase64(String stringToEncode)
@@ -280,7 +282,7 @@ static uint8_t OperationStatusDps(const String& url, const String& token, const 
   return result;
 }
 
-static bool ProvisionAzureDps(const String& idScope, const String& deviceId, const String& deviceKey)
+static uint8_t ProvisionAzureDps(const String& idScope, const String& deviceId, const String& deviceKey)
 {
   Serial.println(F("Starting Azure DPS registration..."));
 
@@ -297,7 +299,7 @@ static bool ProvisionAzureDps(const String& idScope, const String& deviceId, con
   s_espClient.setCACert(s_cert);
 #endif
 
-  bool isDeviceRegistered = AzureHandler::GENERAL_ERROR;
+  uint8_t isDeviceRegistered = AzureHandler::GENERAL_ERROR;
   if (DeviceRegisterStatusDps(dpsUrlPre + dpsUrlSu, dPSSASToken, dPSPutContent, deviceKey) ==
       AzureHandler::SUCCESS)
   {
@@ -328,7 +330,7 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length)
   Serial.printf("Message Arrived on Topic %s\n", topic);
   for (unsigned int i = 0; i < length; i++)
   {
-    message += (char) payload[i];
+    message += payload[i];
   }
   Serial.printf("            Message Body %s\n", message.c_str());
 
@@ -342,9 +344,9 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length)
   }
 }
 
-static bool checkConnection()
+static uint8_t checkConnection()
 {
-  bool result = AzureHandler::SUCCESS;
+  uint8_t result = AzureHandler::SUCCESS;
 
   if (!s_pubSubClient.connected())
   {

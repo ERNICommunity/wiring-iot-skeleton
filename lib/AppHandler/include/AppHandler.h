@@ -12,6 +12,7 @@
 #include "ConfigTypes.h"
 #include "FileHandler.h"
 #include "LandingPageHandler.h"
+#include "ProductDebug.h"
 #include "WifiHandler.h"
 
 #ifndef APPHANDLER_H_
@@ -55,6 +56,14 @@ public:
   uint8_t sendAzureTelemetry(String message) const;
 
   /**
+   * @brief Callback function to modify wifi credentials in s_configHandler and save to file
+   *
+   * @param wifiCredentials   Wifi credentials to be updated
+   * @param makePersisten     Save to internal storage
+   */
+  static void saveWifiCredentials(const ConfigTypes::wifiCredentials& wifiCredentials);
+
+  /**
    * @brief Callback function to modify configurations in s_configHandler and save to file
    *
    * @param sysConfig         Configuration to be updated
@@ -76,6 +85,8 @@ private:
 
   static ConfigHandler::ConfigHandler s_configHandler;
   AzureHandler::AzureHandler m_azureHandler;
+  ProductDebug::ProductDebug m_productDebug;
+  WifiHandler::WifiHandler m_wifiHandler;
 };
 
 } // namespace AppHandler

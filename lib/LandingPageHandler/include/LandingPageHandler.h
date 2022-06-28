@@ -24,23 +24,13 @@
 namespace LandingPageHandler
 {
 /**
- * @brief Callback function for saving system configuration
- *
- */
-typedef uint8_t (*saveConfigCallback_t)(const ConfigTypes::sysConfig& sysConfig, bool makePersisten);
-/**
- * @brief Callback function for getting system configuration
- *
- */
-typedef const ConfigTypes::sysConfig* (*getConfigCallback_t)(void);
-
-/**
  * @brief Initialize web server for landing page
  *
  * @param saveConfigCallback    Callback to save system configs
  * @param setConfigCallback     Callback to load system configs
  */
-void initLandingPage(saveConfigCallback_t saveConfigCallback, getConfigCallback_t getConfigCallback);
+void initLandingPage(ConfigTypes::saveConfigCallback_t saveConfigCallback,
+                     ConfigTypes::getConfigCallback_t getConfigCallback);
 
 /**
  * @brief Function to replace placeholders in HTML

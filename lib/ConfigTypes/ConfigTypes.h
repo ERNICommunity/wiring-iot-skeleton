@@ -56,6 +56,28 @@ struct sysConfig
   azureConfig azure;
 };
 typedef struct sysConfig sysConfig;
+
+//-----------------------------------------------------------------------------
+// Configuration callbacks
+//-----------------------------------------------------------------------------
+/**
+ * @brief Callback function for saving wifi credentials
+ *
+ */
+typedef void (*saveWifiCredentialsCallback_t)(const ConfigTypes::wifiCredentials& wifiCredentials);
+
+/**
+ * @brief Callback function for saving system configuration
+ *
+ */
+typedef uint8_t (*saveConfigCallback_t)(const ConfigTypes::sysConfig& sysConfig, bool makePersisten);
+
+/**
+ * @brief Callback function for getting system configuration
+ *
+ */
+typedef const ConfigTypes::sysConfig* (*getConfigCallback_t)(void);
+
 } // namespace ConfigTypes
 
 #endif /* CONFIGTYPES_H_ */

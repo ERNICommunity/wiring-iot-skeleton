@@ -9,14 +9,17 @@
 
 #include <DbgTraceLevel.h>
 #include <DbgTracePort.h>
+#include <SerialCommand.h>
+
+SerialCommand* sCmd = nullptr;
 
 //-----------------------------------------------------------------------------
 
 void setBuiltInLed(bool state)
 {
 #if defined(ESP8266) || defined(BOARD_LOLIN_D32)
-  digitalWrite(LED_BUILTIN,
-               !state); // LED state is inverted on ESP8266 & LOLIN D32
+  // LED state is inverted on ESP8266 & LOLIN D32
+  digitalWrite(LED_BUILTIN, static_cast<uint8_t>(!state));
 #else
   digitalWrite(LED_BUILTIN, state);
 #endif
@@ -32,6 +35,12 @@ uint8_t AppHandler::AppHandler::initApp()
   setBuiltInLed(false);
 
   //-----------------------------------------------------------------------------
+  // Debug
+  //-----------------------------------------------------------------------------
+  m_productDebug.setSaveWifiCrendentialsCallback(saveWifiCredentials);
+  m_productDebug.setupProdDebugEnv();
+
+  //-----------------------------------------------------------------------------
   // Little FS file system
   //-----------------------------------------------------------------------------
   FileHandler::initFS();
@@ -39,7 +48,7 @@ uint8_t AppHandler::AppHandler::initApp()
   //-----------------------------------------------------------------------------
   // Load initial configurations
   //-----------------------------------------------------------------------------
-  if (s_configHandler.loadConfigurationFromFile(ConfigHandler::DEFAULT_PATH))
+  if (s_configHandler.loadConfigurationFromFile(ConfigHandler::DEFAULT_PATH) != ConfigHandler::SUCCESS)
   {
     Serial.println(F("ERROR: Loading configurations failed."));
     outFlag = GENERAL_ERROR;
@@ -48,7 +57,7 @@ uint8_t AppHandler::AppHandler::initApp()
   //-----------------------------------------------------------------------------
   // Wifi Configuration
   //-----------------------------------------------------------------------------
-  if (WifiHandler::initWifi(s_configHandler.getWifiConfig()))
+  if (m_wifiHandler.initWifi(s_configHandler.getWifiConfig()) != WifiHandler::SUCCESS)
   {
     Serial.println(F("ERROR: Wifi initialization failed."));
     outFlag = GENERAL_ERROR;
@@ -57,9 +66,9 @@ uint8_t AppHandler::AppHandler::initApp()
   //-----------------------------------------------------------------------------
   // Azure DPS and IoT Hub
   //-----------------------------------------------------------------------------
-  if ((WiFi.status() == WL_CONNECTED))
+  if (m_wifiHandler.checkWifiConnection() == WifiHandler::SUCCESS)
   {
-    if (m_azureHandler.azureInit(*s_configHandler.getAzureConfig()))
+    if (m_azureHandler.azureInit(*s_configHandler.getAzureConfig()) != AzureHandler::SUCCESS)
     {
       Serial.println(F("ERROR: Azure initialization failed."));
     }
@@ -78,7 +87,17 @@ uint8_t AppHandler::AppHandler::initApp()
 
 void AppHandler::AppHandler::loopApp()
 {
-  m_azureHandler.azureLoop();
+  // file deepcode ignore CppSameEvalBinaryExpressionfalse: sCmd gets instantiated by setupProdDebugEnv()
+  if (nullptr != sCmd)
+  {
+    // process serial commands
+    sCmd->readSerial();
+  }
+
+  if (m_wifiHandler.checkWifiConnection() == WifiHandler::SUCCESS)
+  {
+    m_azureHandler.azureLoop();
+  }
 }
 
 uint8_t AppHandler::AppHandler::sendAzureTelemetry(String message) const
@@ -89,6 +108,14 @@ uint8_t AppHandler::AppHandler::sendAzureTelemetry(String message) const
     flag = GENERAL_ERROR;
   }
   return flag;
+}
+
+void AppHandler::AppHandler::saveWifiCredentials(const ConfigTypes::wifiCredentials& wifiCredentials)
+{
+  ConfigTypes::sysConfig sysConfig = *s_configHandler.getSysConfig();
+  sysConfig.wifi.ssid = wifiCredentials.ssid;
+  sysConfig.wifi.password = wifiCredentials.password;
+  s_configHandler.setSysConfig(sysConfig, true);
 }
 
 uint8_t AppHandler::AppHandler::saveConfigurations(const ConfigTypes::sysConfig& sysConfig,
