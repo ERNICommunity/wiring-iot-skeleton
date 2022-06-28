@@ -17,7 +17,6 @@
 #include <DbgCliTopic.h>
 #include <DbgTraceLevel.h>
 #include <DbgTracePort.h>
-#include <ThingSpeak.h>
 
 #include "ProductDebug.h"
 
