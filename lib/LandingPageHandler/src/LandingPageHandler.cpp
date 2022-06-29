@@ -44,6 +44,10 @@ void LandingPageHandler::initLandingPage(ConfigTypes::saveConfigCallback_t saveC
       sysConfig.landingPage.disableLandingPage = request->hasParam("lp_dissable");
       sysConfig.landingPage.gpioForLandingPage = request->getParam("lp_gpio")->value().toInt();
 
+      sysConfig.location.latitude = request->getParam("device_latitude")->value().toDouble();
+      sysConfig.location.longitude = request->getParam("device_longitude")->value().toDouble();
+      sysConfig.location.altitude = request->getParam("device_altitude")->value().toDouble();
+
       sysConfig.azure.idScope = request->getParam("azure_idScope")->value();
       sysConfig.azure.deviceID = request->getParam("azure_deviceId")->value();
       sysConfig.azure.deviceDerivedKey = request->getParam("azure_deviceDerivedKey")->value();
@@ -86,6 +90,18 @@ const String LandingPageHandler::processor(const String& var)
   if (static_cast<bool>(var == "LP_GPIO"))
   {
     return String(s_sysConfig->landingPage.gpioForLandingPage);
+  }
+  if (static_cast<bool>(var == "DEVICE_LATITUDE"))
+  {
+    return String(s_sysConfig->location.latitude, 10);
+  }
+  if (static_cast<bool>(var == "DEVICE_LONGITUDE"))
+  {
+    return String(s_sysConfig->location.longitude, 10);
+  }
+  if (static_cast<bool>(var == "DEVICE_ALTITUDE"))
+  {
+    return String(s_sysConfig->location.altitude, 10);
   }
   if (static_cast<bool>(var == "AZURE_DEVICEID"))
   {
