@@ -1,7 +1,8 @@
 # wiring-iot-skeleton
+
 Arduino Framework based IoT Skeleton Embedded Application, powered by [PlatformIO](http://platformio.org "Cross-platform build system").
 
-With this project you have a good starting point to create your own application that shall be based on the Arduino Framework. 
+With this project you have a good starting point to create your own application that shall be based on the Arduino Framework.
 
 The project is suitable for the following controller boards:
 
@@ -12,6 +13,7 @@ The project is suitable for the following controller boards:
 * [Adafruit ESP8266 Huzzah](https://www.adafruit.com/product/2471 "Adafruit HUZZAH ESP8266 Breakout")
 
 ## Purpose
+
 This project builds up an Arduino Framework based IoT device application skeleton and it comprises of several components helping with debugging and integrating embedded applications on several different contoller modules.
 
 This skeleton application can help you to build up your own Arduino Framework based applications while working with [PlatformIO](http://platformio.org "Cross-platform build system").
@@ -25,7 +27,7 @@ This project demonstrates how to integrate the following **components**:
 * ***App-Dbg***: boilerplate code setting up all the debug environment such as CLI and Tracing and free RAM info printer
 * ***MqttClient***: Mqtt Client wrapping araound ***PubSubClient*** library, monitoring the LAN and Mqtt conection, able to automatically re-connect on connection loss, providing auto publish for selectable topics and auto subscribe for all registered topic subscriptions on re-connection, supports multiple subscritions also with wildcards in the topic path
 * ***ThingSpeak***: Send data to channels on Mathwork's [thingspeak.com](https://thingspeak.com) open data platform for the Internet of Things with MATLAB analytics and visualization
-* ***ArduinoJson***: 
+* ***ArduinoJson***:
 
 The **command line interface** provides the following **functionality**:  
 
@@ -40,7 +42,7 @@ The **command line interface** provides the following **functionality**:
   * publish to MQTT Topics
 * enable / disable LED Test Blink Publisher
 
-This skeleton application demonstrates how to integrate libraries provided by the PlatformIO ecosystem and also how to use your own libraries and can help you to build up your own Arduino Framework based applications with focus on IoT. 
+This skeleton application demonstrates how to integrate libraries provided by the PlatformIO ecosystem and also how to use your own libraries and can help you to build up your own Arduino Framework based applications with focus on IoT.
 
 The following components are in focus:
 
@@ -52,14 +54,16 @@ The following components are in focus:
 * [ThingSpeak](https://github.com/mathworks/thingspeak-particle)
 
 ## Toolchain
+
 [PlatformIO](http://platformio.org "Cross-platform build system") is the ideal foundation when developing IoT devices. It supports cross-platform development for many different controller boards widely used in the maker field and also for industrial applications.
 
 ### Installation
+
 #### Python 3.7
 
 **Windows**
 
-* download Python 3.7.x or later from: https://www.python.org/downloads/
+* download Python 3.7.x or later from: <https://www.python.org/downloads/>
 * select destination directory: keep default
 * make sure python.exe is added to path
 
@@ -68,8 +72,9 @@ The following components are in focus:
 Install Python 3.7 or later using your package manager.
 
 #### PlatformIO
+
 Install PlatformIO using the Python Package Manager
-(see also http://docs.platformio.org/en/latest/installation.html#python-package-manager):
+(see also <http://docs.platformio.org/en/latest/installation.html#python-package-manager>):
 
 * in a cmd shell enter: `pip install -U platformio`
 * upgrade pip, in the cmd shell enter: `python -m pip install --upgrade pip`
@@ -77,54 +82,88 @@ Install PlatformIO using the Python Package Manager
 
 ### Working with Visual Studio Code
 
-#### How to build for VSCode
+#### Getting started
 
   1. Create a directory where your code project shall be cloned into. E.g. `C:\git\pio-prj`
-  2. Clone this repository into the folder you created before: 
+  2. Clone this repository into the folder you created before:
      `git clone git@github.com:ERNICommunity/wiring-iot-skeleton.git` (ssh) or
      `git clone https://github.com/ERNICommunity/wiring-iot-skeleton.git` (ssl)
   3. Open a command shell in the just cloned project folder, i.e. in `C:\git\pio-prj\wiring-iot-skeleton`
-  4. Run the command `pio init --ide vscode`. 
+  4. Run the command `pio init --ide vscode`.
      This prepares the project to be edited using Visual Studio Code.
-  5. Run the command `pio run`, this starts the project build 
-
-Note: Print a list of all available boards with the command: `pio boards`
 
 #### Open project in VSCode
 
   1. Open VSCode
-  2. In menu choose *File > Open Folder...* and choose the folder you cloned the project into before, i.e 
+  2. In menu choose *File > Open Folder...* and choose the folder you cloned the project into before, i.e
      `C:\git\pio-prj\wiring-iot-skeleton`
+
+#### How to select your target platform
+
+  1. Press <kbd>F1</kbd> to open the command menu
+  2. Enter "platformIO: Switch Project Environment"
+  3. Select the desired target platform. If your platform is not present, it may not be supported.
+
+#### How to build the project
+
+  1. Press <kbd>F1</kbd> to open the command menu
+  2. Enter "platformIO: Build"
+
+  &emsp;&nbsp; or:
+
+  1. On windows, press: <kbd>ctrl</kbd> + <kbd>alt</kbd> + <kbd>B</kbd>
+
+#### How to upload/flash the target platform
+
+  1. Press <kbd>F1</kbd> to open the command menu
+  2. Enter "platformIO: Upload"
+
+  &emsp;&nbsp; or:
+
+  1. On windows, press: <kbd>ctrl</kbd> + <kbd>alt</kbd> + <kbd>U</kbd>
+
+#### How to build and upload the file system
+
+  1. Click on the PlatformIO on the left bar menu
+  2. In the PROJECT TASKS menu select your target platform name and open the Platform menu
+  3. Click on "Build Filesystem Image"
+  4. Click on "Upload Filesystem Image"
+
+  ![build and upload file system img](doc/img/FileSystem.PNG)
 
 ### Working with Eclipse CDT
 
 #### How to build for Eclipse CDT
 
   1. Create a directory where your Eclipse Workspace will be stored and where this project shall be cloned into. E.g. `C:\git\pio-prj`
-  2. Clone this repository into the folder you created before: 
+  2. Clone this repository into the folder you created before:
      `git clone git@github.com:ERNICommunity/wiring-iot-skeleton.git` (ssh) or
      `git clone https://github.com/ERNICommunity/wiring-iot-skeleton.git` (ssl)
   3. Open a command shell in the just cloned project folder, i.e in `C:\git\pio-prj\wiring-iot-skeleton`
-  4. Run the command `pio init --ide eclipse`. 
+  4. Run the command `pio init --ide eclipse`.
      This prepares the project to be edited using Eclipse CDT.
-  5. Run the command `pio run`, this starts the project build 
+  5. Run the command `pio run`, this starts the project build
 
 Note: Print a list of all available boards with the command: `pio boards`
 
 #### Open project in Eclipse CDT
 
   1. Open Eclipse CDT, choose the folder you created before as workspace, i.e `C:\git\pio-prj`
-  2. Import the project with *File > Import > General > Existing Projects* into Workspace, choose the 
+  2. Import the project with *File > Import > General > Existing Projects* into Workspace, choose the
      `wiring-iot-skeleton` (i.e `C:\git\pio-prj\wiring-iot-skeleton`)
 
 ### Connect Terminal Emulation
-In order to test and run the CLI commands, a terminal emulation program shall be used. The one giving you the best experience will be the [HTerm](http://www.der-hammer.info/terminal/). 
 
-Load the _hterm-com10.cfg_ file (to be found in the project root directory) to configure HTerm properly. Alter the *COM10* accordingly to the one that has been selected on your computer.
+In order to test and run the CLI commands, a terminal emulation program shall be used. The one giving you the best experience will be the [HTerm](http://www.der-hammer.info/terminal/).
+
+Load the *hterm-com10.cfg* file (to be found in the project root directory) to configure HTerm properly. Alter the *COM10* accordingly to the one that has been selected on your computer.
 
 ## Debug Features
+
 ### Debug CLI Commands
+
 #### Command Tree
+
      dbg                      Debug CLI root node
        tr                     Debug Trace Port config access
          heap                 Particular Trace Port (heap: see below in chapter Trace Port)
@@ -163,12 +202,12 @@ Load the _hterm-com10.cfg_ file (to be found in the project root directory) to c
          wr                   ThingSpeak write fields.
 
 #### Example commands
+
 * `dbg tr heap lvl set debug`
 * `dbg thgspk set 23.6 1`
 * `dbg thgspk set 25.3 2`
 * `dbg thgspk wr`
 * `dbg ledpub en`
-
 
 ### Trace Port
 
@@ -181,39 +220,68 @@ Load the _hterm-com10.cfg_ file (to be found in the project root directory) to c
 |mqttled    |debug        |show incoming ledpublisher blink messages                                             |
 |mqttdfltsub|debug        |show incoming messages for subscribed topics (subscribed by CLI: dbg mqtt sub <topic>)|
 
+## Library Content
+
+This chapter lists and explains all the libraries in this project. You can find the libraries under the 'lib' folder.
+
+Libraries are divided in two application libraries and interface libraries.
+
+### Application Libraries
+
+Application libraries are meant to be agnostic from the platform they are deployed to. No code that bounds these libraries to a platform should be added.
+
+* AppHandler
+  * Offers the full functionality of the repo by wrapping all the other application libraries, meaning only this library must be included. It provides an Arduino like interface to setup and loop. It provides wrapper functions to expose required functionality from the application libraries.
+
+* AzureHAndler
+  * Offers functionality to register devices to an IoT Hub through a DPS, send telemetry, device twin changes and receive messages from the IoT Hub.
+
+* ConfigHandler
+  * Offer functionality to configure the board and other application libraries. Configuration of the WiFi, oft access point, device location, azure credentials and landing page are available.
+
+* ConfigTypes
+  * Holds together all the common types shared by all the application libraries.
+
+* LandingPageHandler
+  * Offers functionality for a web server that exposes the device's configuration, accessible through the IP address of the device. The landing page can be accessed by either connecting to the device soft access point or to the same WiFi network the device is connected to. Both, the device's soft access point IP or the WiFi IP (if connected) are printed in the log at boot time.
+
+### Interface Libraries
+
+Interface libraries are meant to connect the application libraries to any specific target platform. This way, if the need to support a new platform arises, only these libraries need to be updated.
+
+* FileHandler - Interface for File System handling
+* WifiHandler - Interface for board WiFi handling
+
+TODO: Create interface libraries for JSON, MQTT, SNTP and HTTP. Move the direct code used in application libraries to the interface libraries.
 
 ## Library Usage
+
 This chapter lists all the libraries this project is using.
 
 ### PlatformIO Libraries
 
 Name         |URL                                             |Description                                                                          |
 |:------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------|
-|SerialCommand|https://github.com/kroimon/Arduino-SerialCommand|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
-|spin-timer |https://github.com/dniklaus/spin-timer|Universal recurring or non-recurring Timer.|
-|debug-cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
-|dbg-trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
-|ThingSpeak   |https://github.com/mathworks/thingspeak-particle|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
-|256dpi/MQTT |https://github.com/256dpi/arduino-mqtt                    |MQTT library for Arduino, bundling the [lwmqtt](https://github.com/256dpi/lwmqtt) MQTT 3.1.1 client and adds a thin wrapper to get an Arduino like API.                                                |
-|ArduinoJson  |https://github.com/bblanchon/ArduinoJson        |An elegant and efficient JSON library for embedded systems                          |
-
-
+|SerialCommand|<https://github.com/kroimon/Arduino-SerialCommand>|A Wiring/Arduino library to tokenize and parse commands received over a serial port.|
+|spin-timer |<https://github.com/dniklaus/spin-timer>|Universal recurring or non-recurring Timer.|
+|debug-cli|<https://github.com/ERNICommunity/debug-cli>|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
+|dbg-trace|<https://github.com/ERNICommunity/dbg-trace>|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
+|ThingSpeak   |<https://github.com/mathworks/thingspeak-particle>|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
+|256dpi/MQTT |<https://github.com/256dpi/arduino-mqtt>                    |MQTT library for Arduino, bundling the [lwmqtt](https://github.com/256dpi/lwmqtt) MQTT 3.1.1 client and adds a thin wrapper to get an Arduino like API.                                                |
+|ArduinoJson  |<https://github.com/bblanchon/ArduinoJson>        |An elegant and efficient JSON library for embedded systems                          |
 
 ### Homebrew Libraries
 
 |Name       |URL                                             |Description                                                                                                                      |
 |:----------|:-----------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-|Mqtt-Client|https://github.com/ERNICommunity/mqtt-client    |ERNI Community MQTT Client with pluggable publish and subscribe topic objects and connection status monitoring                   |
-|RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities, helps to show free heap space                                                                           |
-|App-Debug  |https://github.com/dniklaus/wiring-app-debug.git|Wiring application debug setup component                                                                                         |
-
-
+|Mqtt-Client|<https://github.com/ERNICommunity/mqtt-client>    |ERNI Community MQTT Client with pluggable publish and subscribe topic objects and connection status monitoring                   |
+|RamUtils   |<https://github.com/dniklaus/arduino-utils-mem>   |Arduino Memory Utilities, helps to show free heap space                                                                           |
+|App-Debug  |<https://github.com/dniklaus/wiring-app-debug.git>|Wiring application debug setup component                                                                                         |
 
 ## Create a new project based on this skeleton application
 
 1. On **GitHub:** create new repository, i.e. *my-test*
 2. Within a **Git Bash:**
-
 
 ```bash
   git clone --bare git@github.com:ERNICommunity/wiring-iot-skeleton.git
