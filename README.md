@@ -25,22 +25,12 @@ This project demonstrates how to integrate the following **components**:
 * ***DbgTrace***: debug trace log environment with configurable log levels
 * ***DbgCLI***: interactive console environment with command tree that can be built up decentralized (from any different location in your application code and within any component)
 * ***App-Dbg***: boilerplate code setting up all the debug environment such as CLI and Tracing and free RAM info printer
-* ***MqttClient***: Mqtt Client wrapping araound ***PubSubClient*** library, monitoring the LAN and Mqtt conection, able to automatically re-connect on connection loss, providing auto publish for selectable topics and auto subscribe for all registered topic subscriptions on re-connection, supports multiple subscritions also with wildcards in the topic path
-* ***ThingSpeak***: Send data to channels on Mathwork's [thingspeak.com](https://thingspeak.com) open data platform for the Internet of Things with MATLAB analytics and visualization
-* ***ArduinoJson***:
+* ***ArduinoJson***: C++ JSON library for Arduino and IoT (Internet Of Things)
 
 The **command line interface** provides the following **functionality**:  
 
 * set the trace level of the free heap monitoring printer
 * configure the WiFi access point (SSID & Password) and show the WiFi connection status and the available hotspots around your device
-* [ThingSpeak](http://thingspeak.com) features:
-  * setup a  channel to be written to later on (ChID & API Key)
-  * set ThingSpeak channel data fields (1..8) and write the data to the channel
-* MQTT features:
-  * connect to / disconnect from a broker
-  * subscribe / unsubscribe to / from MQTT Topics
-  * publish to MQTT Topics
-* enable / disable LED Test Blink Publisher
 
 This skeleton application demonstrates how to integrate libraries provided by the PlatformIO ecosystem and also how to use your own libraries and can help you to build up your own Arduino Framework based applications with focus on IoT.
 
@@ -49,9 +39,6 @@ The following components are in focus:
 * [SpinTimer](https://github.com/dniklaus/spin-timer)
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
-* [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
-* [MQTT](https://github.com/256dpi/arduino-mqtt)
-* [ThingSpeak](https://github.com/mathworks/thingspeak-particle)
 
 ## Toolchain
 
@@ -175,50 +162,21 @@ Load the *hterm-com10.cfg* file (to be found in the project root directory) to c
              get              Show the current trace level
              set <level>      Set a particular trace level
              list             Show all available trace levels (& currenntly selected)
-         conmon               Trace Port: LAN and MQTT connection monitor                
-         mqttctrl             Trace Port: MQTT client control
-         mqttrx               Trace Port: Received Messages from MQTT subscriptions
-         mqttdflt             Trace Port: Default Mqtt Subscriber
-         mqttled              Trace Port: Test LED Mqtt Subscriber
        wifi                   WiFi debug commands
          mac                  show WiFi MAC address
          nets                 list available WLAN networks
          stat                 Show WiFi status
          dis                  Disconnect WiFi
          con <SSID> <Pass>    Connect WiFi
-       mqtt                   MQTT client control commands
-         con                  Connect to broker
-         dis                  Disconnect from broker
-         sub <Topic>          Subscribe to MQTT Topic
-         unsub <Topic>        Unsubscribe to MQTT Topic
-         pub <Topic> <Value>  Publish Value to MQTT Topic
-       ledpub                 LED Test Blink Publisher commands
-         en                   Enable LED Test Blink Publisher
-         dis                  Disable LED Test Blink Publisher
-       thgspk                 ThingSpeak debug commands
-         chid <channelId>     Set ThingSpeak Channel ID.
-         key <APIKey>         Set ThingSpeak API key.
-         set <value> [field]  Set ThingSpeak field value (field: 1..8, default: 1)
-         wr                   ThingSpeak write fields.
 
 #### Example commands
-
 * `dbg tr heap lvl set debug`
-* `dbg thgspk set 23.6 1`
-* `dbg thgspk set 25.3 2`
-* `dbg thgspk wr`
-* `dbg ledpub en`
 
 ### Trace Port
 
 |Trace Port|default level|functionality|
 |-----------|-------------|:-------------------------------------------------------------------------------------|
 |heap       |info         |if set to debug level: automatically print free heap memory [bytes], every 10 seconds |
-|conmon     |info         |if set to debug level: show WLAN connect / disconnect status updates                  |
-|mqttctrl   |info         |if set to debug: show MQTT Client connection status                                   |
-|mqttrx     |info         |if set to degug level: show subscribed incoming messages                              |
-|mqttled    |debug        |show incoming ledpublisher blink messages                                             |
-|mqttdfltsub|debug        |show incoming messages for subscribed topics (subscribed by CLI: dbg mqtt sub <topic>)|
 
 ## Library Content
 
@@ -266,17 +224,16 @@ Name         |URL                                             |Description      
 |spin-timer |<https://github.com/dniklaus/spin-timer>|Universal recurring or non-recurring Timer.|
 |debug-cli|<https://github.com/ERNICommunity/debug-cli>|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
 |dbg-trace|<https://github.com/ERNICommunity/dbg-trace>|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
-|ThingSpeak   |<https://github.com/mathworks/thingspeak-particle>|"MathWorks": ThingSpeak Communication Library for Arduino & ESP8266                 |
-|256dpi/MQTT |<https://github.com/256dpi/arduino-mqtt>                    |MQTT library for Arduino, bundling the [lwmqtt](https://github.com/256dpi/lwmqtt) MQTT 3.1.1 client and adds a thin wrapper to get an Arduino like API.                                                |
 |ArduinoJson  |<https://github.com/bblanchon/ArduinoJson>        |An elegant and efficient JSON library for embedded systems                          |
 
 ### Homebrew Libraries
 
 |Name       |URL                                             |Description                                                                                                                      |
 |:----------|:-----------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-|Mqtt-Client|<https://github.com/ERNICommunity/mqtt-client>    |ERNI Community MQTT Client with pluggable publish and subscribe topic objects and connection status monitoring                   |
-|RamUtils   |<https://github.com/dniklaus/arduino-utils-mem>   |Arduino Memory Utilities, helps to show free heap space                                                                           |
-|App-Debug  |<https://github.com/dniklaus/wiring-app-debug.git>|Wiring application debug setup component                                                                                         |
+|RamUtils   |https://github.com/dniklaus/arduino-utils-mem   |Arduino Memory Utilities, helps to show free heap space                                                                           |
+|App-Debug  |https://github.com/dniklaus/wiring-app-debug.git|Wiring application debug setup component                                                                                         |
+
+
 
 ## Create a new project based on this skeleton application
 
