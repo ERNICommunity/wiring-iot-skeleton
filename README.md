@@ -23,16 +23,12 @@ This project demonstrates how to integrate the following **components**:
 * ***DbgCLI***: interactive console environment with command tree that can be built up decentralized (from any different location in your application code and within any component)
 * ***App-Dbg***: boilerplate code setting up all the debug environment such as CLI and Tracing and free RAM info printer
 * ***MqttClient***: Mqtt Client wrapping araound ***PubSubClient*** library, monitoring the LAN and Mqtt conection, able to automatically re-connect on connection loss, providing auto publish for selectable topics and auto subscribe for all registered topic subscriptions on re-connection, supports multiple subscritions also with wildcards in the topic path
-* ***ThingSpeak***: Send data to channels on Mathwork's [thingspeak.com](https://thingspeak.com) open data platform for the Internet of Things with MATLAB analytics and visualization
 * ***ArduinoJson***: 
 
 The **command line interface** provides the following **functionality**:  
 
 * set the trace level of the free heap monitoring printer
 * configure the WiFi access point (SSID & Password) and show the WiFi connection status and the available hotspots around your device
-* [ThingSpeak](http://thingspeak.com) features:
-  * setup a  channel to be written to later on (ChID & API Key)
-  * set ThingSpeak channel data fields (1..8) and write the data to the channel
 * MQTT features:
   * connect to / disconnect from a broker
   * subscribe / unsubscribe to / from MQTT Topics
@@ -48,7 +44,6 @@ The following components are in focus:
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
 * [Mqtt-Client](https://github.com/ERNICommunity/mqtt-client)
 * [MQTT](https://github.com/256dpi/arduino-mqtt)
-* [ThingSpeak](https://github.com/mathworks/thingspeak-particle)
 
 ## Toolchain
 [PlatformIO](http://platformio.org "Cross-platform build system") is the ideal foundation when developing IoT devices. It supports cross-platform development for many different controller boards widely used in the maker field and also for industrial applications.
@@ -155,17 +150,9 @@ Load the _hterm-com10.cfg_ file (to be found in the project root directory) to c
        ledpub                 LED Test Blink Publisher commands
          en                   Enable LED Test Blink Publisher
          dis                  Disable LED Test Blink Publisher
-       thgspk                 ThingSpeak debug commands
-         chid <channelId>     Set ThingSpeak Channel ID.
-         key <APIKey>         Set ThingSpeak API key.
-         set <value> [field]  Set ThingSpeak field value (field: 1..8, default: 1)
-         wr                   ThingSpeak write fields.
 
 #### Example commands
 * `dbg tr heap lvl set debug`
-* `dbg thgspk set 23.6 1`
-* `dbg thgspk set 25.3 2`
-* `dbg thgspk wr`
 * `dbg ledpub en`
 
 
