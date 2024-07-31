@@ -13,6 +13,8 @@
 #include <MqttClientController.h>
 #include <LedTestBlinkPublisher.h>
 
+const unsigned long c_ledBlinkPublisherTime = 2000;
+
 class DbgCli_Cmd_LedBlinkPublisherEn : public DbgCli_Command
 {
 private:
@@ -33,7 +35,7 @@ public:
     {
       if (0 != m_ledBlinkPublisher)
       {
-        m_ledBlinkPublisher->getTimer()->start(2000);
+        m_ledBlinkPublisher->getTimer()->start(c_ledBlinkPublisherTime);
         TR_PRINTF(MqttClientController::Instance()->trPort(), DbgTrace_Level::alert, "LED Blink publisher enabled");
       }
     }
